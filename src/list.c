@@ -70,6 +70,24 @@ void deleteList(List* list) {
     free(list);
 }
 
+void deleteListNode(List* list, Node* node) {
+    if (list == NULL || node == NULL) {
+        return;
+    }
+    if (node == list->begin || node == list->end) {
+        return;
+    }
+    Node *prev = node->prev;
+    Node *next = node->next;
+    prev->next = next;
+    next->prev = prev;
+
+    // prevent accidental "use after free"
+    node->next = NULL;
+    node->prev = NULL;
+    free(node);
+}
+
 
 #include <stdio.h>
 int main()
@@ -79,6 +97,8 @@ int main()
     listInsertAfter(l, l->begin, 2);
     listInsertAfter(l, l->end, 3);
     listInsertBefore(l, l->end->prev->prev, 5);
+    deleteListNode(l, l->end->prev->next->prev);
     listInsertAfter(l, l->begin->next, 4);
+
     deleteList(l);
 }

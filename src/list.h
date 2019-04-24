@@ -18,7 +18,7 @@ typedef struct List {
 List* newList();
 Status listInsertAfter(List* list, Node* node, int elem);
 Status listInsertBefore(List* list, Node* node, int elem);
-void deleteNode(List* list, Node* node);
+void deleteListNode(List* list, Node* node);
 void deleteList(List* list);
 
 #endif /* _LIST_H__ */
