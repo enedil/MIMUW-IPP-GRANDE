@@ -35,6 +35,7 @@ void vectorDeleteFreeContent(Vector* vector) {
     }
     for (size_t i = 0; i < vector->size; ++i) {
         free(vector->arr[i]);
+        vector->arr[i] = NULL;
     }
     vectorDelete(vector);
 }
