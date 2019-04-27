@@ -20,10 +20,19 @@ set(CMAKE_C_FLAGS "-std=c11 -Wall -Wextra")
 # set(CMAKE_C_FLAGS_DEBUG "-g")
 
 # Wskazujemy pliki źródłowe.
+
 set(SOURCE_FILES
+    src/dictionary.c
+    src/dictionary.h
+    src/list.c
+    src/list.h
     src/map.c
     src/map.h
-    src/map_main.c)
+    src/map_main.c
+    src/string_utils.c
+    src/string_utils.h
+    src/vector.c
+    src/vector.h)
 
 # Wskazujemy plik wykonywalny.
 add_executable(map ${SOURCE_FILES})
