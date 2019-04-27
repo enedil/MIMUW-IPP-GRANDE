@@ -64,12 +64,17 @@ void deleteList(List* list) {
     if (list->begin == NULL) {
         return;
     }
+    Node *begin = list->begin;
     Node *it = list->begin->next;
     while (it != list->end) {
         it = it->next;
+        it->prev->next = NULL;
         free(it->prev);
+        it->prev = NULL;
     }
-    free(list->begin);
+    list->begin = NULL;
+    list->end = NULL;
+    free(begin);
 }
 
 void deleteListNode(List* list, Node* node) {
