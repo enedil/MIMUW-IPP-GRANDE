@@ -8,10 +8,11 @@
 #include <assert.h>
 
 int main() {
-  char const* str;
+  //char const* str;
 
   Map* m = newMap();
   assert(m);
+    /*
 
   assert(addRoad(m, "Alinów", "Bór", 1, 2020));
   assert(addRoad(m, "Bór", "Cielińsk-Niekłańsk", 2, 2020));
@@ -46,7 +47,7 @@ int main() {
                      ";3;2023;Fraźnik Nowy;4;2020;Grzegrzewo;5;2020;Homilcin") == 0);
   free((void *)str);
 
+*/
   deleteMap(m);
-
   return 0;
 }
