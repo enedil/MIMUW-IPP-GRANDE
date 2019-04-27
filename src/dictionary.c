@@ -16,9 +16,11 @@ void deleteDictionary(Dictionary* dictionary) {
     for (size_t i = 0; i < dictionary->array_size; ++i) {
         if (free_key) {
             free(dictionary->array[i].key);
+            dictionary->array[i].key = NULL;
         }
         if (free_val) {
             free(dictionary->array[i].val);
+            dictionary->array[i].val = NULL;
         }
     }
     free(dictionary->array);
@@ -28,7 +30,7 @@ void deleteDictionary(Dictionary* dictionary) {
 }
 
 Dictionary* newDictionary(hash_t (*hash)(void*), bool (*equal)(void*, void*), bool free_key, bool free_val) {
-    Dictionary* dictionary = malloc(sizeof(Dictionary));
+    Dictionary* dictionary = calloc(1, sizeof(Dictionary));
     if (dictionary == NULL) {
         return NULL;
     }
@@ -82,13 +84,16 @@ Status insertDictionary(Dictionary* dictionary, void* key, void* val) {
     } else if (dictionary->size + 1 >= dictionary->array_size) {
         CHECK_RET(rehashDictionary(dictionary, 2*dictionary->array_size));
     }
+
+    bool free_key = dictionary->memlocation[0];
+    bool free_val = dictionary->memlocation[1];
     hash_t index = INDEX(key);
     while (dictionary->array[index].key != NULL) {
         if (dictionary->equal(dictionary->array[index].key, key)) {
-            if (dictionary->array[index].key != key) {
+            if (dictionary->array[index].key != key && free_key) {
                 free(dictionary->array[index].key);
             }
-            if (dictionary->array[index].val != val) {
+            if (dictionary->array[index].val != val && free_val) {
                 free(dictionary->array[index].val);
             }
             break;
