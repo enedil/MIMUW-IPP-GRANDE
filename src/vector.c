@@ -57,7 +57,7 @@ Status vectorAppend(Vector *vector, void *element) {
     vector->arr = n;
     return vectorAppend(vector, element);
 }
-
+/*
 int main()
 {
 
@@ -74,3 +74,4 @@ int main()
     }
     vectorDeleteFreeContent(n);
 }
+*/

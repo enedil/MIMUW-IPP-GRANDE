@@ -1,6 +1,5 @@
-
-#ifndef _VECTOR_H__
-#define _VECTOR_H__
+#ifndef __VECTOR_H__
+#define __VECTOR_H__
 
 #include <stdlib.h>
 
@@ -18,4 +17,4 @@ void vectorDeleteFreeContent(Vector* vector);
 Status vectorAppend(Vector *vector, void *element);
 
 
-#endif /* _VECTOR_H__ */
+#endif /* __VECTOR_H__ */
