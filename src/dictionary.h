@@ -1,12 +1,13 @@
-
-#ifndef _DICTIONARY_H__
-#define _DICTIONARY_H__
+#ifndef __DICTIONARY_H__
+#define __DICTIONARY_H__
 
 
 #include <stdint.h>
 #include <stdlib.h>
 
 #include "status.h"
+
+#define DELETED ((void*)1)
 
 typedef uint64_t hash_t;
 
@@ -30,4 +31,4 @@ Status insertDictionary(Dictionary* dictionary, void* key, void* val);
 Entry getDictionary(Dictionary* dictionary, void* key);
 void deleteFromDictionary(Dictionary* dictionary, void* key);
 
-#endif /* _DICTIONARY_H__ */
+#endif /* __DICTIONARY_H__ */

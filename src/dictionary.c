@@ -4,16 +4,21 @@
 
 
 #define DICTIONARY_INITIAL_SIZE 4
-#define DELETED ((void*)1)
 
 #define INDEX(key) dictionary->hash((key)) % dictionary->array_size
 
 void deleteDictionary(Dictionary* dictionary) {
+    if (dictionary == NULL) {
+        return;
+    }
+    for (size_t i = 0; i < dictionary->array_size; ++i) {
+        free(dictionary->array[i].key);
+        free(dictionary->array[i].val);
+    }
     free(dictionary->array);
     dictionary->size = 0;
     dictionary->array_size = 0;
     dictionary->array = NULL;
-    free(dictionary);
 }
 
 Dictionary* newDictionary(hash_t (*hash)(void*), bool (*equal)(void*, void*)) {
@@ -132,6 +137,7 @@ bool eq(void* a, void* b) {
     return *(int*)a == *(int*)b;
 }
 
+/*
 #include <stdio.h>
 static void printdict(Dictionary* d)
 {
@@ -144,7 +150,6 @@ static void printdict(Dictionary* d)
     }
     printf("\n");
 }
-
 int main() {
     Dictionary* d = newDictionary(hsh, eq);
 
@@ -169,9 +174,13 @@ int main() {
             printf("ret: %p %p\n", e.key, e.val);
         } else if (command == DELETE) {
             deleteFromDictionary(d, &key);
+        } else {
+            break;
         }
         printdict(d);
     }
 
     deleteDictionary(d);
+    free(d);
 }
+*/
