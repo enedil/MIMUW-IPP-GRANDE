@@ -9,6 +9,8 @@
 
 #define DELETED ((void*)1)
 
+#define NOT_FOUND(e) ((e).key == NULL || (e).key == DELETED)
+
 typedef uint64_t hash_t;
 
 typedef struct Entry {
@@ -22,11 +24,12 @@ typedef struct Dictionary {
     Entry*      array;
     size_t      array_size;
     size_t      size;
+    bool        memlocation[2];
 } Dictionary;
 
 
 void deleteDictionary(Dictionary* dictionary);
-Dictionary* newDictionary(hash_t (*hash)(void*), bool (*equal)(void*, void*));
+Dictionary* newDictionary(hash_t (*hash)(void*), bool (*equal)(void*, void*), bool free_key, bool free_val);
 Status insertDictionary(Dictionary* dictionary, void* key, void* val);
 Entry getDictionary(Dictionary* dictionary, void* key);
 void deleteFromDictionary(Dictionary* dictionary, void* key);

@@ -11,9 +11,15 @@ void deleteDictionary(Dictionary* dictionary) {
     if (dictionary == NULL) {
         return;
     }
+    bool free_key = dictionary->memlocation[0];
+    bool free_val = dictionary->memlocation[1];
     for (size_t i = 0; i < dictionary->array_size; ++i) {
-        free(dictionary->array[i].key);
-        free(dictionary->array[i].val);
+        if (free_key) {
+            free(dictionary->array[i].key);
+        }
+        if (free_val) {
+            free(dictionary->array[i].val);
+        }
     }
     free(dictionary->array);
     dictionary->size = 0;
@@ -21,7 +27,7 @@ void deleteDictionary(Dictionary* dictionary) {
     dictionary->array = NULL;
 }
 
-Dictionary* newDictionary(hash_t (*hash)(void*), bool (*equal)(void*, void*)) {
+Dictionary* newDictionary(hash_t (*hash)(void*), bool (*equal)(void*, void*), bool free_key, bool free_val) {
     Dictionary* dictionary = malloc(sizeof(Dictionary));
     if (dictionary == NULL) {
         return NULL;
@@ -31,6 +37,8 @@ Dictionary* newDictionary(hash_t (*hash)(void*), bool (*equal)(void*, void*)) {
     dictionary->size = 0;
     dictionary->array_size = DICTIONARY_INITIAL_SIZE;
     dictionary->array = calloc(DICTIONARY_INITIAL_SIZE, sizeof(Entry));
+    dictionary->memlocation[0] = free_key;
+    dictionary->memlocation[1] = free_val;
     if (dictionary->array == NULL) {
         free(dictionary);
         return NULL;
@@ -55,7 +63,7 @@ static Status rehashDictionary(Dictionary* dictionary, size_t new_size) {
         if (e.key != NULL) {
             if (insertDictionary(dictionary, e.key, e.val) == false) {
                 deleteDictionary(dictionary);
-                free(copy.array);
+                *dictionary = copy;
                 return false;
             }
         }

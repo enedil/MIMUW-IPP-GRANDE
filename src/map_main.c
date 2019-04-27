@@ -12,7 +12,7 @@ int main() {
 
   Map* m = newMap();
   assert(m);
-    /*
+
 
   assert(addRoad(m, "Alinów", "Bór", 1, 2020));
   assert(addRoad(m, "Bór", "Cielińsk-Niekłańsk", 2, 2020));
@@ -21,6 +21,7 @@ int main() {
   assert(addRoad(m, "Dąb Stary", "Emiliew", 5, 2020));
   assert(addRoad(m, "Emiliew", "Bór", 8, 2020));
   assert(addRoad(m, "Emiliew", "Fraźnik Nowy", 3, 2020));
+  /*
   assert(!repairRoad(m, "Emiliew", "Cielińsk-Niekłańsk", 2019));
   assert(repairRoad(m, "Emiliew", "Cielińsk-Niekłańsk", 2021));
   assert(!repairRoad(m, "Emiliew", "Alinów", 2020));
