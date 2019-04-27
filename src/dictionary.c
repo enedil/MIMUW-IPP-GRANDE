@@ -4,6 +4,7 @@
 
 
 #define DICTIONARY_INITIAL_SIZE 4
+#define DELETED ((void*)1)
 
 #define INDEX(key) dictionary->hash((key)) % dictionary->array_size
 
@@ -65,6 +66,8 @@ Status insertDictionary(Dictionary* dictionary, void* key, void* val) {
     CHECK_RET(val);
     if (dictionary->size * 10 > dictionary->array_size * 9) {
         CHECK_RET(rehashDictionary(dictionary, 2*dictionary->array_size));
+    } else if (dictionary->size + 1 >= dictionary->array_size) {
+        CHECK_RET(rehashDictionary(dictionary, 2*dictionary->array_size));
     }
     hash_t index = INDEX(key);
     while (dictionary->array[index].key != NULL) {
@@ -81,6 +84,7 @@ Status insertDictionary(Dictionary* dictionary, void* key, void* val) {
     }
     dictionary->array[index].key = key;
     dictionary->array[index].val = val;
+    dictionary->size++;
     return true;
 }
 
@@ -107,8 +111,9 @@ void deleteFromDictionary(Dictionary* dictionary, void* key) {
         if (dictionary->equal(dictionary->array[index].key, key)) {
             free(dictionary->array[index].key);
             free(dictionary->array[index].val);
-            dictionary->array[index].key = NULL;
-            dictionary->array[index].val = NULL;
+            dictionary->array[index].key = DELETED;
+            dictionary->array[index].val = DELETED;
+            dictionary->size--;
             return;
         }
         index = (index + 1) % dictionary->array_size;
@@ -121,32 +126,52 @@ hash_t hsh(void* key) {
 }
 
 bool eq(void* a, void* b) {
-    if ((a == 0) || (a == (void*)1) || (b == 0) || (b == (void*)1)) {
+    if ((a == 0) || (a == DELETED) || (b == 0) || (b == DELETED)) {
         return false;
     }
     return *(int*)a == *(int*)b;
 }
 
 #include <stdio.h>
+static void printdict(Dictionary* d)
+{
+    if (d == NULL) {
+        return;
+    }
+    printf("Dictionary at %p:\n", d);
+    for (int i = 0; i < d->array_size; ++i) {
+        printf("%p, %p\n", d->array[i].key, d->array[i].val);
+    }
+    printf("\n");
+}
+
 int main() {
     Dictionary* d = newDictionary(hsh, eq);
-    int* a = malloc(sizeof(int));
-    *a = 4;
-    int* b = malloc(sizeof(int));
-    *b = 3;
-    for (int i = 0; i < d->array_size; ++i) {
-        printf("%p, %p\n", (int*)d->array[i].key, d->array[i].val);
-    }
 
-    insertDictionary(d, a, b);
-    Entry e = getDictionary(d, a);
-    printf("%d, %d\n",*(int*)(e.key), *(int*)(e.val));
-    for (int i = 0; i < d->array_size; ++i) {
-        printf("%p, %p\n", (int*)d->array[i].key, d->array[i].val);
-    }
-    int c = 4;
-    deleteFromDictionary(d, &c);
+    int INSERT = 1;
+    int GET = 2;
+    int DELETE = 3;
 
+    int command;
+    int key;
+    int val;
+    while (true) {
+        printf("cmd, key, val ");
+        scanf("%d%d%d", &command, &key, &val);
+        if (command == INSERT) {
+            int* k = malloc(sizeof(int));
+            *k = key;
+            int* v = malloc(sizeof(int));
+            *v = val;
+            insertDictionary(d, k, v);
+        } else if (command == GET) {
+            Entry e = getDictionary(d, &key);
+            printf("ret: %p %p\n", e.key, e.val);
+        } else if (command == DELETE) {
+            deleteFromDictionary(d, &key);
+        }
+        printdict(d);
+    }
 
     deleteDictionary(d);
 }
