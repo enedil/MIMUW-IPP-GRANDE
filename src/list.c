@@ -61,13 +61,15 @@ void deleteList(List* list) {
     if (list == NULL) {
         return;
     }
+    if (list->begin == NULL) {
+        return;
+    }
     Node *it = list->begin->next;
     while (it != list->end) {
         it = it->next;
         free(it->prev);
     }
     free(list->begin);
-    free(list);
 }
 
 void deleteListNode(List* list, Node* node) {
@@ -88,7 +90,7 @@ void deleteListNode(List* list, Node* node) {
     free(node);
 }
 
-
+/*
 #include <stdio.h>
 int main()
 {
@@ -101,4 +103,6 @@ int main()
     listInsertAfter(l, l->begin->next, 4);
 
     deleteList(l);
+    free(l);
 }
+*/
