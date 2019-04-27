@@ -57,6 +57,20 @@ Status vectorAppend(Vector *vector, void *element) {
     vector->arr = n;
     return vectorAppend(vector, element);
 }
+
+void vectorRemoveLast(Vector* vector, bool free_) {
+    if (vector == NULL) {
+        return;
+    }
+    if (vector->size == 0) {
+        return;
+    }
+    vector->size--;
+    // NOTE: perhaps you want to free recursively
+    if (free_) {
+        free(vector->arr[vector->size]);
+    }
+}
 /*
 int main()
 {

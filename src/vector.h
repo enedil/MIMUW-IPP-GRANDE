@@ -15,6 +15,7 @@ Vector* newVector();
 void vectorDelete(Vector* vector);
 void vectorDeleteFreeContent(Vector* vector);
 Status vectorAppend(Vector *vector, void *element);
+void vectorRemoveLast(Vector* vector, bool free_);
 
 
 #endif /* __VECTOR_H__ */
