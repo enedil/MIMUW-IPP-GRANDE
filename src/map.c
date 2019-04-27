@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -17,7 +18,7 @@ typedef struct Route {
 typedef struct Road {
     int start;
     int end;
-    unsigned length;
+    uint64_t length;
     int builtYear;
 } Road;
 
@@ -110,6 +111,25 @@ static bool validCityName(const char* city) {
     return true;
 }
 
+static bool possiblyValidRoad(const char* city1, const char* city2) {
+    CHECK_RET(city1);
+    CHECK_RET(city2);
+    CHECK_RET(validCityName(city1) == false);
+    CHECK_RET(validCityName(city2) == false);
+    CHECK_RET(strcmp(city1, city2) != 0);
+    return true;
+}
+
+static bool areRoadsConsistent(Road* r1, Road* r2) {
+    CHECK_RET(r1);
+    CHECK_RET(r2);
+    CHECK_RET(r1->builtYear == r2->builtYear);
+    CHECK_RET(r1->length == r2->length);
+    CHECK_RET(r1->end == r2->start);
+    CHECK_RET(r2->start == r1->end);
+    return true;
+}
+
 hash_t hash_int(void* p) {
     unsigned *c = p;
     return *c;
@@ -129,7 +149,7 @@ Status addCity(Map *map, const char* city) {
     *city_id = (int)map->city_to_int.size;
     CHECK_RET(insertDictionary(&map->city_to_int, (void*)city, city_id));
 
-    Dictionary *d = newDictionary(hash_int, equal_int, true, true);
+    Dictionary *d = newDictionary(hash_int, equal_int, false, true);
     if (d == NULL) {
         goto DELETE_FROM_DICTIONARY;
     }
@@ -139,38 +159,105 @@ Status addCity(Map *map, const char* city) {
 
     return true;
 
-    DELETE_DICT:
-        deleteDictionary(d);
-        free(d);
+DELETE_DICT:
+    deleteDictionary(d);
+    free(d);
 
-    DELETE_FROM_DICTIONARY:
-        deleteFromDictionary(&map->city_to_int, (void*)city);
+DELETE_FROM_DICTIONARY:
+    deleteFromDictionary(&map->city_to_int, (void*)city);
+    return false;
+}
+
+bool addRoad(Map *map, const char *city1, const char *city2,
+             unsigned length, int builtYear) {
+    CHECK_RET(builtYear);
+    CHECK_RET(length);
+    CHECK_RET(map);
+    CHECK_RET(possiblyValidRoad(city1, city2));
+
+    Entry e1 = getDictionary(&map->city_to_int, (void*)city1);
+    Entry e2 = getDictionary(&map->city_to_int, (void*)city2);
+
+    // don't bother with deleting this, in case of further failure
+    if (NOT_FOUND(e1)) {
+        CHECK_RET(addCity(map, city1));
+    }
+    if (NOT_FOUND(e2)) {
+        CHECK_RET(addCity(map, city2));
+    }
+
+    e1 = getDictionary(&map->city_to_int, (void*)city1);
+    e2 = getDictionary(&map->city_to_int, (void*)city2);
+
+    int id1 = *(int*)e1.val;
+    int id2 = *(int*)e2.val;
+    Entry edge12 = getDictionary((map->neighbours.arr)[id1], &id2);
+    Entry edge21 = getDictionary((map->neighbours.arr)[id2], &id1);
+    if (!NOT_FOUND(edge12) || !NOT_FOUND(edge21)) {
+        return false;
+    }
+
+    Road* r1 = calloc(1, sizeof(Road));
+    Road* r2 = calloc(1, sizeof(Road));
+    if (r1 == NULL || r2 == NULL) {
+        goto FREE_R;
+    }
+    *r1 = (const Road){
+            .builtYear = builtYear,
+            .length = length,
+            .start = id1,
+            .end = id2
+        };
+    *r2 = *r1;
+    r2->start = r1->end;
+    r2->end = r1->start;
+
+    if (insertDictionary(map->neighbours.arr[id1], &(r1->end), r1) == false) {
+        goto FREE_R;
+    }
+    if (insertDictionary(map->neighbours.arr[id2], &(r2->end), r2) == false) {
+        goto FREE_R;
+    }
+    return true;
+
+FREE_R:
+    free(r1);
+    free(r2);
+
     return false;
 }
 
 
-
-bool addRoad(Map *map, const char *city1, const char *city2,
-             unsigned length, int builtYear) {
-    if (builtYear == 0) {
-        return false;
-    }
-    CHECK_RET(validCityName(city1) == false);
-    CHECK_RET(validCityName(city2) == false);
-    CHECK_RET(strcmp(city1, city2) != 0);
+bool repairRoad(Map *map, const char *city1, const char *city2, int repairYear)
+{
+    CHECK_RET(map);
+    CHECK_RET(repairYear);
+    CHECK_RET(possiblyValidRoad(city1, city2));
 
     Entry e1 = getDictionary(&map->city_to_int, (void*)city1);
+    CHECK_RET(NOT_FOUND(e1) == false);
     Entry e2 = getDictionary(&map->city_to_int, (void*)city2);
-    if (NOT_FOUND(e1)) {
-        addCity(map, city1);
+    CHECK_RET(NOT_FOUND(e2) == false);
+
+    int id1 = *(int*)e1.val;
+    int id2 = *(int*)e2.val;
+
+    Entry edge12 = getDictionary((map->neighbours.arr)[id1], &id2);
+    Entry edge21 = getDictionary((map->neighbours.arr)[id2], &id1);
+
+    if (NOT_FOUND(edge12) || NOT_FOUND(edge21)) {
+        return false;
     }
-    if (NOT_FOUND(e2)) {
-        addCity(map, city2);
-    }
+    Road* r1 = edge12.val;
+    Road* r2 = edge21.val;
 
+    assert(areRoadsConsistent(r1, r2));
 
-
+    CHECK_RET(repairYear >= r1->builtYear);
+    r1->builtYear = repairYear;
+    r2->builtYear = repairYear;
 
     return true;
 }
+
 
