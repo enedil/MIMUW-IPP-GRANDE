@@ -38,7 +38,7 @@ bool validCityName(const char* city) {
     CHECK_RET(name);
     CHECK_RET(*name);
     while (*name) {
-        if (*name >= 32 || *name < 0 || *name == ';') {
+        if ((*name > 0 && *name < 32) || *name == ';') {
             return false;
         }
         name++;
@@ -49,8 +49,8 @@ bool validCityName(const char* city) {
 bool possiblyValidRoad(const char* city1, const char* city2) {
     CHECK_RET(city1);
     CHECK_RET(city2);
-    CHECK_RET(validCityName(city1) == false);
-    CHECK_RET(validCityName(city2) == false);
+    CHECK_RET(validCityName(city1));
+    CHECK_RET(validCityName(city2));
     CHECK_RET(strcmp(city1, city2) != 0);
     return true;
 }
@@ -79,4 +79,23 @@ size_t int_length(int64_t x) {
     char b[sizeof(x)*3+1];
     sprintf(b, "%"PRId64, x);
     return strlen(b);
+}
+
+void* encodeEdgeAsPtr(int a, int b) {
+    uint64_t ret = 0;
+    if (a < b) {
+        ret |= a;
+        ret |= ((uint64_t)b) << 32;
+    } else {
+        return encodeEdgeAsPtr(b, a);
+    }
+    return (void*)ret;
+}
+
+
+int min(int a, int b) {
+    if (a < b) {
+        return a;
+    }
+    return b;
 }

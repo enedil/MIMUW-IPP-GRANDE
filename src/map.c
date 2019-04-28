@@ -1,5 +1,6 @@
 #include <assert.h>
 #include <inttypes.h>
+#include <limits.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -7,7 +8,7 @@
 #include "dictionary.h"
 #include "list.h"
 #include "map.h"
-#include "string_utils.h"
+#include "utils.h"
 #include "vector.h"
 
 #define ROUTE_MAX 1000
@@ -17,15 +18,15 @@ typedef struct Route {
 } Route;
 
 typedef struct Road {
+    uint64_t length;
     int start;
     int end;
-    uint64_t length;
     int builtYear;
 } Road;
 
 typedef struct Map {
     Route routes[ROUTE_MAX];
-    // each neighbour holds a Dictionary[int, Road]
+    /// each neighbour holds a Dictionary[int, Road]
     Vector neighbours;
     Vector int_to_city;
     Dictionary city_to_int;
@@ -50,32 +51,18 @@ static void deleteAdjacencyDictionaries(Map* map) {
     }
 }
 
-
-hash_t hashEdge(void* key) {
-    return (hash_t)key;
-}
-
-bool cmpEdges(void* e1, void* e2) {
-    if (e1 == NULL || e1 == DELETED || e2 == NULL || e2 == DELETED) {
-        return false;
-    }
-    return e1 == e2;
-}
-
 Map* newMap(void) {
     Map* map = calloc(1, sizeof(Map));
     CHECK_RET(map);
-    // route number 0 is invalid, as per task descritption
+    /// route number 0 is invalid, as per task descritption
     memset(map->routes, 0, ROUTE_MAX * sizeof(Route));
 
-
-    Dictionary* d = newDictionary(hash_string, undereferencing_strcmp, false, true);
+    Dictionary* d = newDictionary(hash_string, undereferencing_strcmp, true, true);
     if (d == NULL) {
         goto DELETE_ROUTES;
     }
     map->city_to_int = *d;
     free(d);
-
 
     Vector* n = newVector();
     if (n == NULL) {
@@ -95,10 +82,8 @@ Map* newMap(void) {
     if (edges == NULL) {
         goto DELETE_EDGES_TO_LIST_OF_ROUTES;
     }
-
     map->routesThrough = *edges;
     free(edges);
-
     return map;
 
     DELETE_EDGES_TO_LIST_OF_ROUTES:
@@ -114,14 +99,6 @@ Map* newMap(void) {
     return NULL;
 }
 
-void deleteDictionaryOfLists(Dictionary* d) {
-    for (size_t i = 0; i < d->array_size; ++i) {
-        List* l = d->array[i].val;
-        deleteList(l);
-    }
-   deleteDictionary(d);
-}
-
 void deleteMap(Map *map) {
     deleteRoutes(map);
     deleteDictionary(&map->city_to_int);
@@ -130,28 +107,6 @@ void deleteMap(Map *map) {
     vectorDelete(&map->int_to_city);
     deleteDictionaryOfLists(&map->routesThrough);
     free(map);
-}
-
-static bool validCityName(const char* city) {
-    char* name = (char*)city;
-    CHECK_RET(name);
-    CHECK_RET(*name);
-    while (*name) {
-        if (*name >= 32 || *name < 0 || *name == ';') {
-            return false;
-        }
-        name++;
-    }
-    return true;
-}
-
-static bool possiblyValidRoad(const char* city1, const char* city2) {
-    CHECK_RET(city1);
-    CHECK_RET(city2);
-    CHECK_RET(validCityName(city1) == false);
-    CHECK_RET(validCityName(city2) == false);
-    CHECK_RET(strcmp(city1, city2) != 0);
-    return true;
 }
 
 static bool areRoadsConsistent(Road* r1, Road* r2) {
@@ -179,9 +134,14 @@ Status addCity(Map *map, const char* city) {
     CHECK_RET(map);
     CHECK_RET(city);
 
+    size_t len = strlen(city);
+    char* c = malloc(len + 1);
+    CHECK_RET(c);
+    strcpy(c, city);
+
     int* city_id = malloc(sizeof(int));
     *city_id = (int)map->city_to_int.size;
-    CHECK_RET(insertDictionary(&map->city_to_int, (void*)city, city_id));
+    CHECK_RET(insertDictionary(&map->city_to_int, (void*)c, city_id));
 
     Dictionary *d = newDictionary(hash_int, equal_int, false, true);
     if (d == NULL) {
@@ -193,28 +153,14 @@ Status addCity(Map *map, const char* city) {
     if (vectorAppend(&map->int_to_city, (void*)city) == false) {
         goto DELETE_DICT;
     }
-
     return true;
-
 
 DELETE_DICT:
     deleteDictionary(d);
     free(d);
-
 DELETE_FROM_DICTIONARY:
     deleteFromDictionary(&map->city_to_int, (void*)city);
     return false;
-}
-
-void* encodeEdgeAsPtr(int a, int b) {
-    uint64_t ret = 0;
-    if (a < b) {
-        ret |= a;
-        ret |= ((uint64_t)b) << 32;
-    } else {
-        return encodeEdgeAsPtr(b, a);
-    }
-    return (void*)ret;
 }
 
 bool addRoad(Map *map, const char *city1, const char *city2,
@@ -277,17 +223,13 @@ bool addRoad(Map *map, const char *city1, const char *city2,
     }
     return true;
 
-
 FREE_R:
     free(r1);
     free(r2);
-
 FREE_L:
     free(l);
-
     return false;
 }
-
 
 bool repairRoad(Map *map, const char *city1, const char *city2, int repairYear)
 {
@@ -333,7 +275,7 @@ Road nextNeighbour(Map* map, int src, bool reset) {
     return *(Road*)(neighbours->array[x].val);
 }
 
-Status shortestPaths(Map* map, int A, int B, bool visited[], int prev[], uint64_t* d) {
+Status shortestPaths(Map* map, int A, int B, bool visited[], int prev[], uint64_t* d, int* w) {
     const uint64_t infinity = -1;
 
     size_t cities_no = map->city_to_int.size;
@@ -344,6 +286,9 @@ Status shortestPaths(Map* map, int A, int B, bool visited[], int prev[], uint64_
     uint64_t *dist = NULL;
     List* queue = NULL;
     bool vis = false;
+    bool* is_in_queue = NULL;
+    int *time = NULL;
+
 
     dist = malloc(cities_no * sizeof (uint64_t));
     CHECK_RET(dist);
@@ -353,16 +298,30 @@ Status shortestPaths(Map* map, int A, int B, bool visited[], int prev[], uint64_
     }
     dist[A] = 0;
 
+    is_in_queue = calloc(cities_no, sizeof(bool));
+    if (is_in_queue == NULL) {
+        goto FREE_MEMORY;
+    }
+
     queue = newList();
     if (queue == NULL) {
         goto FREE_MEMORY;
     }
     listInsertAfter(queue, queue->begin, A);
 
+    time = calloc(cities_no, sizeof (int));
+    if (time == NULL) {
+        goto FREE_MEMORY;
+    }
+    for (size_t i = 0; i < cities_no; ++i) {
+        time[i] = INT_MAX;
+    }
+
     while (queue->begin->next != queue->end) {
         int x = queue->begin->next->value;
         visited[x] = true;
         deleteListNode(queue, queue->begin->next);
+        is_in_queue[x] = false;
         // reset counter
         Road road = nextNeighbour(map, x, true);
         Dictionary* neighbours = map->neighbours.arr[x];
@@ -370,28 +329,65 @@ Status shortestPaths(Map* map, int A, int B, bool visited[], int prev[], uint64_
         for (size_t i = 0; i < neighbours->size; ++i) {
             road = nextNeighbour(map, x, false);
             if (visited[road.end] == false) {
-                if (dist[road.end] > road.length + dist[x]) {
+                bool p1 = dist[road.end] > road.length + dist[x];
+                bool p2 = dist[road.end] == road.length + dist[x];
+                if (p1 || (p2 && time[road.end] <= min(time[x], road.builtYear))) {
                     prev[road.end] = x;
                     dist[road.end] = road.length + dist[x];
+                    time[road.end] = min(time[x], road.builtYear);
+                    if (is_in_queue[road.end] == false) {
+                        listInsertAfter(queue, queue->end, road.end);
+                        is_in_queue[road.end] = true;
+                    }
                 }
-                listInsertAfter(queue, queue->end, road.end);
             }
         }
     }
-
     vis = visited[B];
-    if (vis == true) {
-        *d = dist[B];
-    }
+    *d = dist[B];
+    *w = time[B];
+
 
 FREE_MEMORY:
     deleteList(queue);
     free(queue);
     free(dist);
+    free(is_in_queue);
+    free(time);
 
     return vis;
 }
 
+bool appendPath(List* route, int* prev, bool to_end) {
+    int current;
+    if (to_end) {
+        current = route->end->prev->value;
+    } else {
+        current = route->begin->next->value;
+    }
+    int inserted_count = 0;
+    while (current != -1 && prev[current] != -1) {
+        current = prev[current];
+        bool v;
+        if (to_end) {
+            v = listInsertBefore(route, route->end, current);
+        } else {
+            v = listInsertAfter(route, route->begin, current);
+        }
+        if (v == false) {
+            for (int i = 0; i < inserted_count; ++i) {
+                if (to_end) {
+                    deleteListNode(route, route->end->prev);
+                } else {
+                    deleteListNode(route, route->begin->next);
+                }
+            }
+            return false;
+        }
+        inserted_count++;
+    }
+    return true;
+}
 
 bool newRoute(Map *map, unsigned routeId,
               const char *city1, const char *city2) {
@@ -409,7 +405,6 @@ bool newRoute(Map *map, unsigned routeId,
     int id1 = *(int*)e1.val;
     int id2 = *(int*)e2.val;
 
-
     bool ret = false;
 
     bool* visited = NULL;
@@ -421,35 +416,26 @@ bool newRoute(Map *map, unsigned routeId,
 
     size_t cities_no = map->city_to_int.size;
     uint64_t d;
+    int w;
     visited = calloc(cities_no, sizeof(bool));
     prev = malloc(cities_no * sizeof(int));
     if (visited == NULL || prev == NULL) {
-        ret = false;
         goto FREE_ROUTE;
     }
     memset(prev, 0xff, cities_no * sizeof(int));
-    if (shortestPaths(map, id1, id2, visited, prev, &d) == false) {
-        ret = false;
+    if (shortestPaths(map, id1, id2, visited, prev, &d, &w) == false) {
         goto FREE_ROUTE;
     }
-    int current = id2;
+
     l = &map->routes[routeId].cities;
-    while (current != id1) {
-        if (listInsertAfter(l, l->begin, current) == false) {
-            ret = false;
-            goto FREE_ROUTE;
-        }
-        current = prev[current];
-    }
-    if (listInsertAfter(l, l->begin, current) == false) {
-        ret = false;
+    if (listInsertAfter(l, l->begin, id2) == false) {
         goto FREE_ROUTE;
     }
-
-
+    if (appendPath(l, prev, false) == false) {
+        goto FREE_ROUTE;
+    }
 
     ret = true;
-
 FREE_ROUTE:
     if (ret == false) {
        deleteList(&map->routes[routeId].cities);
@@ -459,7 +445,6 @@ FREE_ROUTE:
 
     return ret;
 }
-
 
 Road getRoad(Map* map, int id1, int id2) {
     Road null = {0};
@@ -483,23 +468,8 @@ Road getRoad(Map* map, int id1, int id2) {
     return *(Road*)edge12.val;
 }
 
-size_t int_length(int64_t x) {
-    // 3 == ceil(log10(256))
-    char b[sizeof(x)*3+1];
-    sprintf(b, "%"PRId64, x);
-    return strlen(b);
-}
-
-char const* getRouteDescription(Map *map, unsigned routeId) {
-    if (map == NULL || routeId == 0 || routeId >= 1000) {
-        return NULL;
-    }
+size_t getRouteDescriptionLength(Map *map, unsigned routeId) {
     Route* route = &map->routes[routeId];
-    // list is empty - that means that there is no such route
-    if (route->cities.begin->next == route->cities.end) {
-        return NULL;
-    }
-
     size_t string_length = int_length(routeId) + 1;
     Node* node = route->cities.begin->next;
     while (node != route->cities.end->prev) {
@@ -514,20 +484,31 @@ char const* getRouteDescription(Map *map, unsigned routeId) {
         node = node->next;
     }
     string_length += strlen(map->int_to_city.arr[node->value]);
+    return string_length;
+}
 
+char const* getRouteDescription(Map *map, unsigned routeId) {
+    if (map == NULL || routeId == 0 || routeId >= ROUTE_MAX) {
+        return NULL;
+    }
+    Route* route = &map->routes[routeId];
+    // list is empty - that means that there is no such route
+    if (route->cities.begin->next == route->cities.end) {
+        return NULL;
+    }
+
+    size_t string_length = getRouteDescriptionLength(map, routeId);
     char* description = malloc(string_length + 1);
     CHECK_RET(description);
-
     int bytes_written;
     char* ptr = description;
     sprintf(description, "%u;%n", routeId, &bytes_written);
     ptr += bytes_written;
-    node = route->cities.begin->next;
+    Node* node = route->cities.begin->next;
     while (node != route->cities.end->prev) {
         int current = node->value;
         int next = node->next->value;
         Road r = getRoad(map, current, next);
-
         sprintf(ptr, "%s;%n", (char*)map->int_to_city.arr[current], &bytes_written);
         ptr += bytes_written;
         sprintf(ptr, "%"PRIu64";%n", r.length, &bytes_written);
@@ -540,6 +521,79 @@ char const* getRouteDescription(Map *map, unsigned routeId) {
     sprintf(ptr, "%s%n", (char*)map->int_to_city.arr[node->value], &bytes_written);
     ptr += bytes_written;
     *ptr = 0;
-
     return description;
 }
+
+
+bool extendRoute(Map *map, unsigned routeId, const char *city) {
+    CHECK_RET(map);
+    CHECK_RET(1 <= routeId && routeId < ROUTE_MAX);
+    CHECK_RET(validCityName(city));
+    CHECK_RET(map->routes[routeId].cities.begin != NULL);
+    CHECK_RET(map->routes[routeId].cities.end   != NULL);
+
+    Entry e = getDictionary(&map->city_to_int, (void*)city);
+    CHECK_RET(NOT_FOUND(e) == false);
+    int id = *(int*)e.val;
+
+    bool ret = false;
+    bool* visited1 = NULL;
+    bool* visited2 = NULL;
+    int* prev1 = NULL;
+    int* prev2 = NULL;
+
+    List* route = &map->routes[routeId].cities;
+    size_t cities_no = map->city_to_int.size;
+    uint64_t d1, d2;
+    int w1, w2;
+
+    visited1 = calloc(cities_no, sizeof(bool));
+    prev1 = malloc(cities_no * sizeof(int));
+    if (visited1 == NULL || prev1 == NULL) {
+        goto FREE;
+    }
+    memset(prev1, 0xff, cities_no * sizeof(int));
+    for (Node* n =  route->begin->next; n != route->end; n = n->next) {
+        visited1[n->value] = true;
+    }
+    visited1[route->begin->next->value] = false;
+    if (shortestPaths(map, id, route->begin->next->value, visited1, prev1, &d1, &w1) == false) {
+        goto FREE;
+    }
+
+    visited2 = calloc(cities_no, sizeof(bool));
+    prev2 = malloc(cities_no * sizeof(int));
+    if (visited2 == NULL || prev2 == NULL) {
+        goto FREE;
+    }
+    memset(prev2, 0xff, cities_no * sizeof(int));
+
+    for (Node* n =  route->begin->next; n != route->end; n = n->next) {
+        visited2[n->value] = true;
+    }
+    visited2[route->end->prev->value] = false;
+    if (shortestPaths(map, id, route->end->prev->value, visited2, prev2, &d2, &w2) == false) {
+        goto FREE;
+    }
+
+    if (d1 < d2 || (d1 == d2 && w1 >= w2)) {
+        if (appendPath(route, prev1, false) == false) {
+            goto FREE;
+        }
+    } else {
+        if (appendPath(route, prev2, true) == false) {
+            goto FREE;
+        }
+    }
+
+
+
+    ret = true;
+FREE:
+    free(visited1);
+    free(visited2);
+    free(prev1);
+    free(prev2);
+    return ret;
+}
+

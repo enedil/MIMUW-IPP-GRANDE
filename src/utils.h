@@ -11,5 +11,7 @@ void deleteDictionaryOfLists(Dictionary* d);
 hash_t hashEdge(void* key);
 bool cmpEdges(void* e1, void* e2);
 size_t int_length(int64_t x);
+void* encodeEdgeAsPtr(int a, int b);
+int min(int a, int b);
 
 #endif /* __STRING_UTILS__ */
