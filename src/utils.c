@@ -99,3 +99,14 @@ int min(int a, int b) {
     }
     return b;
 }
+
+hash_t hash_int(void* p) {
+    unsigned *c = p;
+    return *c;
+}
+
+bool equal_int(void* p1, void* p2) {
+    CHECK_RET(p1);
+    CHECK_RET(p2);
+    return 0 == memcmp(p1, p2, sizeof(int));
+}

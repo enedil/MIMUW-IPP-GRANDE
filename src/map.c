@@ -45,7 +45,6 @@ static void deleteAdjacencyDictionaries(Map* map) {
     }
     for (size_t i = 0; i < map->neighbours.size; ++i) {
         deleteDictionary(map->neighbours.arr[i]);
-// hudsihd iudhias uh uisa
         free(map->neighbours.arr[i]);
         map->neighbours.arr[i] = NULL;
     }
@@ -119,17 +118,6 @@ static bool areRoadsConsistent(Road* r1, Road* r2) {
     return true;
 }
 
-hash_t hash_int(void* p) {
-    unsigned *c = p;
-    return *c;
-}
-
-bool equal_int(void* p1, void* p2) {
-    CHECK_RET(p1);
-    CHECK_RET(p2);
-    return 0 == memcmp(p1, p2, sizeof(int));
-}
-
 Status addCity(Map *map, const char* city) {
     CHECK_RET(map);
     CHECK_RET(city);
@@ -143,7 +131,7 @@ Status addCity(Map *map, const char* city) {
     *city_id = (int)map->city_to_int.size;
     CHECK_RET(insertDictionary(&map->city_to_int, (void*)c, city_id));
 
-    Dictionary *d = newDictionary(hash_int, equal_int, false, true);
+    Dictionary *d = newDictionary(hash_int, equalInt, false, true);
     if (d == NULL) {
         goto DELETE_FROM_DICTIONARY;
     }
@@ -358,7 +346,7 @@ FREE_MEMORY:
     return vis;
 }
 
-bool appendPath(List* route, int* prev, bool to_end) {
+bool appendPath(Dictionary* routesThrough, int routeId, List* route, int* prev, bool to_end) {
     int current;
     if (to_end) {
         current = route->end->prev->value;
@@ -367,6 +355,7 @@ bool appendPath(List* route, int* prev, bool to_end) {
     }
     int inserted_count = 0;
     while (current != -1 && prev[current] != -1) {
+        int p = current;
         current = prev[current];
         bool v;
         if (to_end) {
@@ -385,6 +374,9 @@ bool appendPath(List* route, int* prev, bool to_end) {
             return false;
         }
         inserted_count++;
+        Entry e = getDictionary(routesThrough, encodeEdgeAsPtr(p, current));
+        List* l = e.val;
+        listInsertAfter(l, l->begin, routeId);
     }
     return true;
 }
@@ -431,7 +423,7 @@ bool newRoute(Map *map, unsigned routeId,
     if (listInsertAfter(l, l->begin, id2) == false) {
         goto FREE_ROUTE;
     }
-    if (appendPath(l, prev, false) == false) {
+    if (appendPath(&map->routesThrough, routeId, l, prev, false) == false) {
         goto FREE_ROUTE;
     }
 
@@ -470,7 +462,7 @@ Road getRoad(Map* map, int id1, int id2) {
 
 size_t getRouteDescriptionLength(Map *map, unsigned routeId) {
     Route* route = &map->routes[routeId];
-    size_t string_length = int_length(routeId) + 1;
+    size_t string_length = intLength(routeId) + 1;
     Node* node = route->cities.begin->next;
     while (node != route->cities.end->prev) {
         int current = node->value;
@@ -478,8 +470,8 @@ size_t getRouteDescriptionLength(Map *map, unsigned routeId) {
         Road r = getRoad(map, current, next);
 
         string_length += strlen(map->int_to_city.arr[current]) + 1;
-        string_length += int_length(r.length) + 1;
-        string_length += int_length(r.builtYear) + 1;
+        string_length += intLength(r.length) + 1;
+        string_length += intLength(r.builtYear) + 1;
 
         node = node->next;
     }
@@ -577,16 +569,14 @@ bool extendRoute(Map *map, unsigned routeId, const char *city) {
     }
 
     if (d1 < d2 || (d1 == d2 && w1 >= w2)) {
-        if (appendPath(route, prev1, false) == false) {
+        if (appendPath(&map->routesThrough, routeId, route, prev1, false) == false) {
             goto FREE;
         }
     } else {
-        if (appendPath(route, prev2, true) == false) {
+        if (appendPath(&map->routesThrough, routeId, route, prev2, true) == false) {
             goto FREE;
         }
     }
-
-
 
     ret = true;
 FREE:
@@ -597,3 +587,16 @@ FREE:
     return ret;
 }
 
+/*
+bool removeRoad(Map *map, const char *city1, const char *city2) {
+    CHECK_RET(map);
+    CHECK_RET(possiblyValidRoad(city1, city2));
+
+    Entry e1 = getDictionary(&map->city_to_int, (void*)city1);
+    CHECK_RET(NOT_FOUND(e1) == false);
+    Entry e2 = getDictionary(&map->city_to_int, (void*)city2);
+    CHECK_RET(NOT_FOUND(e2) == false);
+
+    getRoad(e1.val)
+}
+*/

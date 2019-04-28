@@ -29,8 +29,8 @@ set(SOURCE_FILES
     src/map.c
     src/map.h
     src/map_main.c
-    src/string_utils.c
-    src/string_utils.h
+    src/utils.c
+    src/utils.h
     src/vector.c
     src/vector.h
     src/status.h)
