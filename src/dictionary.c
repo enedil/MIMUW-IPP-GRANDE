@@ -111,7 +111,7 @@ Entry getDictionary(Dictionary* dictionary, void* key) {
         return (const Entry){NULL, NULL};
     }
     hash_t index = INDEX(key);
-    while (dictionary->array[index].key != NULL) {
+    while (NOT_FOUND(dictionary->array[index]) == false) {
         if (dictionary->equal(dictionary->array[index].key, key)) {
             return dictionary->array[index];
         }
