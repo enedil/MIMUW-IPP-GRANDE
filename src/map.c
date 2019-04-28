@@ -56,7 +56,7 @@ Map* newMap(void) {
     /// route number 0 is invalid, as per task descritption
     memset(map->routes, 0, ROUTE_MAX * sizeof(Route));
 
-    Dictionary* d = newDictionary(hash_string, undereferencing_strcmp, true, true);
+    Dictionary* d = newDictionary(hash_string, undereferencing_strcmp, true, false);
     if (d == NULL) {
         goto DELETE_ROUTES;
     }
@@ -127,8 +127,9 @@ Status addCity(Map *map, const char* city) {
     CHECK_RET(c);
     strcpy(c, city);
 
-    int* city_id = malloc(sizeof(int));
-    *city_id = (int)map->city_to_int.size;
+    //int* city_id = malloc(sizeof(int));
+    //*city_id = (int)map->city_to_int.size;
+    void* city_id = (void*)((map->city_to_int.size << 32) + 1);
     CHECK_RET(insertDictionary(&map->city_to_int, (void*)c, city_id));
 
     Dictionary *d = newDictionary(hash_int, equalInt, false, true);
@@ -172,8 +173,10 @@ bool addRoad(Map *map, const char *city1, const char *city2,
     e1 = getDictionary(&map->city_to_int, (void*)city1);
     e2 = getDictionary(&map->city_to_int, (void*)city2);
 
-    int id1 = *(int*)e1.val;
-    int id2 = *(int*)e2.val;
+    //int id1 = *(int*)e1.val;
+    //int id2 = *(int*)e2.val;
+    int id1 = ((uint64_t)e1.val >> 32);
+    int id2 = ((uint64_t)e2.val >> 32);
     Entry edge12 = getDictionary((map->neighbours.arr)[id1], &id2);
     Entry edge21 = getDictionary((map->neighbours.arr)[id2], &id1);
     if (!NOT_FOUND(edge12) || !NOT_FOUND(edge21)) {
@@ -230,8 +233,11 @@ bool repairRoad(Map *map, const char *city1, const char *city2, int repairYear)
     Entry e2 = getDictionary(&map->city_to_int, (void*)city2);
     CHECK_RET(NOT_FOUND(e2) == false);
 
-    int id1 = *(int*)e1.val;
-    int id2 = *(int*)e2.val;
+    //int id1 = *(int*)e1.val;
+    //int id2 = *(int*)e2.val;
+    int id1 = ((uint64_t)e1.val >> 32);
+    int id2 = ((uint64_t)e2.val >> 32);
+
 
     Entry edge12 = getDictionary((map->neighbours.arr)[id1], &id2);
     Entry edge21 = getDictionary((map->neighbours.arr)[id2], &id1);
@@ -394,8 +400,11 @@ bool newRoute(Map *map, unsigned routeId,
     Entry e2 = getDictionary(&map->city_to_int, (void*)city2);
     CHECK_RET(NOT_FOUND(e2) == false);
 
-    int id1 = *(int*)e1.val;
-    int id2 = *(int*)e2.val;
+//    int id1 = *(int*)e1.val;
+//    int id2 = *(int*)e2.val;
+    int id1 = ((uint64_t)e1.val >> 32);
+    int id2 = ((uint64_t)e2.val >> 32);
+
 
     bool ret = false;
 
@@ -526,7 +535,10 @@ bool extendRoute(Map *map, unsigned routeId, const char *city) {
 
     Entry e = getDictionary(&map->city_to_int, (void*)city);
     CHECK_RET(NOT_FOUND(e) == false);
-    int id = *(int*)e.val;
+    //int id = *(int*)e.val;
+    int id = ((uint64_t)e.val >> 32);
+
+
 
     bool ret = false;
     bool* visited1 = NULL;

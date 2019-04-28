@@ -74,7 +74,7 @@ bool cmpEdges(void* e1, void* e2) {
     return e1 == e2;
 }
 
-size_t int_length(int64_t x) {
+size_t intLength(int64_t x) {
     // 3 == ceil(log10(256))
     char b[sizeof(x)*3+1];
     sprintf(b, "%"PRId64, x);
@@ -83,7 +83,7 @@ size_t int_length(int64_t x) {
 
 void* encodeEdgeAsPtr(int a, int b) {
     uint64_t ret = 0;
-    if (a < b) {
+    if (a <= b) {
         ret |= a;
         ret |= ((uint64_t)b) << 32;
     } else {
@@ -105,7 +105,7 @@ hash_t hash_int(void* p) {
     return *c;
 }
 
-bool equal_int(void* p1, void* p2) {
+bool equalInt(void* p1, void* p2) {
     CHECK_RET(p1);
     CHECK_RET(p2);
     return 0 == memcmp(p1, p2, sizeof(int));
