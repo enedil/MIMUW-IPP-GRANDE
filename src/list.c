@@ -160,20 +160,3 @@ void listReverse(List* l) {
         swap(&b->value, &e->value);
     }
 }
-
-/*
-#include <stdio.h>
-int main()
-{
-    List* l = newList();
-    listInsertAfter(l, l->begin, 1);
-    listInsertAfter(l, l->begin, 2);
-    listInsertAfter(l, l->end, 3);
-    listInsertBefore(l, l->end->prev->prev, 5);
-    deleteListNode(l, l->end->prev->next->prev);
-    listInsertAfter(l, l->begin->next, 4);
-
-    deleteList(l);
-    free(l);
-}
-*/

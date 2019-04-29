@@ -800,7 +800,6 @@ bool removeRoad(Map *map, const char *city1, const char *city2) {
 
     deleteList(routesThrough);
     deleteFromDictionary(&map->routesThrough, encodeEdgeAsPtr(id1, id2));
-    //vectorDeleteFreeListContent(new_routes);
     deleteFromDictionary(map->neighbours.arr[id1], &id2);
     deleteFromDictionary(map->neighbours.arr[id2], &id1);
 
@@ -808,8 +807,6 @@ bool removeRoad(Map *map, const char *city1, const char *city2) {
 FREE_V:
 FREE:
     vectorDeleteFreeListContent(new_routes, ret);
-
-
     free(new_routes);
     return ret;
 }

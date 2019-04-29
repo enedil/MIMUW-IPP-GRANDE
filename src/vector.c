@@ -52,7 +52,6 @@ Status vectorAppend(Vector *vector, void *element) {
     vector->capacity *= 2;
     void *n = realloc(vector->arr, vector->capacity * sizeof(void*));
     if (n == NULL) {
-        // TODO: how to handle this? Should I free something?
         return false;
     }
     vector->arr = n;
@@ -67,26 +66,8 @@ void vectorRemoveLast(Vector* vector, bool free_) {
         return;
     }
     vector->size--;
-    // NOTE: perhaps you want to free recursively
+    /// NOTE: perhaps you want to free recursively
     if (free_) {
         free(vector->arr[vector->size]);
     }
 }
-/*
-int main()
-{
-
-    Vector* n = newVector();
-
-    int *x[10];
-    
-    for (int i = 0; i < 10; ++i) {
-        x[i] = calloc(1, sizeof(x));
-        vectorAppend(n, x[i]);
-    }
-    for (int i = 0; i < n->size; ++i) {
-        printf("%d ", *(int*)n->arr[i]);
-    }
-    vectorDeleteFreeContent(n);
-}
-*/

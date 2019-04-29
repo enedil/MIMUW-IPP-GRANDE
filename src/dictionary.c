@@ -2,9 +2,7 @@
 
 #include "dictionary.h"
 
-
 #define DICTIONARY_INITIAL_SIZE 4
-
 #define INDEX(key) dictionary->hash((key)) % dictionary->array_size
 
 void deleteDictionary(Dictionary* dictionary) {
@@ -76,16 +74,11 @@ Status insertDictionary(Dictionary* dictionary, void* key, void* val) {
     } else if (dictionary->size + 1 >= dictionary->array_size) {
         CHECK_RET(rehashDictionary(dictionary, 2*dictionary->array_size));
     }
-//dictionary->equal(dictionary->array[index].key, key) == false
     hash_t index = INDEX(key);
     while (dictionary->array[index].key != NULL && dictionary->array[index].key != DELETED) {
         if (dictionary->equal(dictionary->array[index].key, key)) {
-            //if (dictionary->array[index].key != key) {
-                dictionary->free_key(dictionary->array[index].key);
-          //  }
-          //  if (dictionary->array[index].val != val) {
-                dictionary->free_val(dictionary->array[index].val);
-          //  }
+            dictionary->free_key(dictionary->array[index].key);
+            dictionary->free_val(dictionary->array[index].val);
             dictionary->size--;
             break;
         }
@@ -142,51 +135,3 @@ bool eq(void* a, void* b) {
     }
     return *(int*)a == *(int*)b;
 }
-
-/*
-#include <stdio.h>
-static void printdict(Dictionary* d)
-{
-    if (d == NULL) {
-        return;
-    }
-    printf("Dictionary at %p:\n", d);
-    for (int i = 0; i < d->array_size; ++i) {
-        printf("%p, %p\n", d->array[i].key, d->array[i].val);
-    }
-    printf("\n");
-}
-int main() {
-    Dictionary* d = newDictionary(hsh, eq);
-
-    int INSERT = 1;
-    int GET = 2;
-    int DELETE = 3;
-
-    int command;
-    int key;
-    int val;
-    while (true) {
-        printf("cmd, key, val ");
-        scanf("%d%d%d", &command, &key, &val);
-        if (command == INSERT) {
-            int* k = malloc(sizeof(int));
-            *k = key;
-            int* v = malloc(sizeof(int));
-            *v = val;
-            insertDictionary(d, k, v);
-        } else if (command == GET) {
-            Entry e = getDictionary(d, &key);
-            printf("ret: %p %p\n", e.key, e.val);
-        } else if (command == DELETE) {
-            deleteFromDictionary(d, &key);
-        } else {
-            break;
-        }
-        printdict(d);
-    }
-
-    deleteDictionary(d);
-    free(d);
-}
-*/
