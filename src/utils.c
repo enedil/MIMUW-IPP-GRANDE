@@ -92,6 +92,17 @@ void* encodeEdgeAsPtr(int a, int b) {
     return (void*)ret;
 }
 
+void* encodeCityId(int id) {
+    uint64_t ret = id;
+    ret <<= 32;
+    ret |= 3;
+    return (void*)ret;
+}
+
+int decodeCityId(void* p) {
+    uint64_t x = (uint64_t)p;
+    return x >> 32;
+}
 
 int min(int a, int b) {
     if (a < b) {
@@ -100,7 +111,7 @@ int min(int a, int b) {
     return b;
 }
 
-hash_t hash_int(void* p) {
+hash_t hashInt(void* p) {
     unsigned *c = p;
     return *c;
 }
@@ -108,5 +119,29 @@ hash_t hash_int(void* p) {
 bool equalInt(void* p1, void* p2) {
     CHECK_RET(p1);
     CHECK_RET(p2);
+    if (p1 == DELETED || p2 == DELETED) {
+        return false;
+    }
     return 0 == memcmp(p1, p2, sizeof(int));
+}
+
+
+void deleteVectorOfLists(Vector* vector) {
+    if (vector == NULL) {
+        return;
+    }
+    for (size_t i = 0; i < vector->size; ++i) {
+        deleteList(vector->arr[i]);
+    }
+    vectorDeleteFreeContent(vector);
+}
+
+void swap(int* x, int* y) {
+    int z = *x;
+    *x = *y;
+    *y = z;
+}
+
+void empty(void* v) {
+
 }

@@ -8,7 +8,7 @@ Vector* newVector() {
         return NULL;
     }
 
-    const size_t initial_capacity = 4;
+    const size_t initial_capacity = 8;
     n->arr = calloc(initial_capacity, sizeof(void*));
     if (n->arr == NULL) {
         free(n);
