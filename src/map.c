@@ -349,10 +349,10 @@ Status shortestPaths(Map* map, int A, int B, bool visited[], int prev[], uint64_
                 bool p1 = dist[road.end] > road.length + dist[x];
                 bool p2 = dist[road.end] == road.length + dist[x];
                 if (p1 || (p2 && time[road.end] <= min(time[x], road.builtYear))) {
-                    //if (road.end == B && p2 && time[road.end] == min(time[x], road.builtYear)) {
-                    //    vis = false;
-                    //    goto FREE_MEMORY;
-                    //}
+                    /*if (road.end == B && p2 && time[road.end] == min(time[x], road.builtYear)) {
+                        vis = false;
+                        goto FREE_MEMORY;
+                    }*/
                     prev[road.end] = x;
                     dist[road.end] = road.length + dist[x];
                     time[road.end] = min(time[x], road.builtYear);
@@ -370,14 +370,12 @@ Status shortestPaths(Map* map, int A, int B, bool visited[], int prev[], uint64_
     *d = dist[B];
     *w = time[B];
 
-
 FREE_MEMORY:
     deleteList(queue);
     free(queue);
     free(dist);
     free(is_in_queue);
     free(time);
-
     return vis;
 }
 
@@ -460,6 +458,9 @@ bool newRoute(Map *map, unsigned routeId,
     if (shortestPaths(map, id1, id2, visited, prev, &d, &w, false) == false) {
         goto FREE_ROUTE;
     }
+    if (d == UINT64_MAX) {
+        goto FREE_ROUTE;
+    }
 
     l = &map->routes[routeId].cities;
     if (listInsertAfter(l, l->begin, id2) == false) {
@@ -523,7 +524,12 @@ size_t getRouteDescriptionLength(Map *map, unsigned routeId) {
 
 char const* getRouteDescription(Map *map, unsigned routeId) {
     if (map == NULL || routeId == 0 || routeId >= ROUTE_MAX) {
-        return NULL;
+        char* c = malloc(1);
+        if (c == NULL) {
+            return NULL;
+        }
+        c[0] = 0;
+        return c;
     }
     Route* route = &map->routes[routeId];
     // list is empty - that means that there is no such route
@@ -615,11 +621,11 @@ bool extendRoute(Map *map, unsigned routeId, const char *city) {
     }
 
     if (d1 < d2 || (d1 == d2 && w1 >= w2)) {
-        if (appendPath(&map->routesThrough, routeId, route, prev1, route->begin) == false) {
+        if (d1 == 0 || appendPath(&map->routesThrough, routeId, route, prev1, route->begin) == false) {
             goto FREE;
         }
     } else {
-        if (appendPath(&map->routesThrough, routeId, route, prev2, route->end) == false) {
+        if (d2 == 0 || appendPath(&map->routesThrough, routeId, route, prev2, route->end) == false) {
             goto FREE;
         }
     }
@@ -774,7 +780,6 @@ bool removeRoad(Map *map, const char *city1, const char *city2) {
         }
         index++;
     }
-
 
     index = 0;
     for (Node* n = routesThrough->begin->next; n != routesThrough->end; n = n->next) {
