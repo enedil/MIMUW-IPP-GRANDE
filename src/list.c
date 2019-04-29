@@ -1,7 +1,9 @@
 #include <stdlib.h>
+#include "dictionary.h"
 #include "list.h"
+#include "utils.h"
 
-List* newList() {
+List* newList(void) {
     List *n = calloc(1, sizeof(List));
     if (n == NULL) {
         return NULL;
@@ -66,7 +68,7 @@ void deleteList(List* list) {
     }
     Node *begin = list->begin;
     Node *it = list->begin->next;
-    while (it != list->end) {
+    while (it != list->end && it->next) {
         it = it->next;
         it->prev->next = NULL;
         free(it->prev);
@@ -93,6 +95,70 @@ void deleteListNode(List* list, Node* node) {
     node->next = NULL;
     node->prev = NULL;
     free(node);
+}
+
+List* copyList(List* list) {
+    List* ret = newList();
+    CHECK_RET(ret);
+    for (Node* n = list->begin->next; n != list->end; n = n->next) {
+        if (listInsertAfter(ret, ret->end, n->value) == false) {
+            deleteList(ret);
+            return NULL;
+        }
+    }
+    return ret;
+}
+
+Status listInsertUnique(List* list, int el) {
+    CHECK_RET(list);
+    for (Node* n = list->begin->next; n != list->end; n = n->next) {
+        if (n->value == el) {
+            return true;
+        }
+    }
+    return listInsertAfter(list, list->end, el);
+}
+
+void listEmplaceNode(List* list, Node* after, Node* val) {
+    if (after == list->end) {
+        after = after->prev;
+    }
+    Node* x = after->next;
+    after->next = val;
+    val->next = x;
+    val->prev = after;
+    x->prev = val;
+}
+
+void insertListAfterElement(List* l, List* new, int el) {
+    for (Node* n = l->begin->next; n != l->end; n = n->next) {
+        if (n->value == el) {
+            Node* x = n->next;
+            n->next = new->begin->next;
+            new->begin->next->prev = n;
+            new->end->prev->next = x;
+            x->prev = new->end->prev;
+            //free(new->begin);
+            return;
+        }
+    }
+}
+
+size_t listPos(List* l, int el) {
+    size_t ret = 0;
+    for (Node* n = l->begin->next; n != l->end; n = n->next) {
+        if (n->value == el) {
+            break;
+        }
+        ret++;
+    }
+    return ret;
+}
+
+void listReverse(List* l) {
+    for (Node *b = l->begin->next, *e = l->end->prev; b != e && b->next != e; b = b->next, e = e->prev) {
+        swap(&b->value, &e->value);
+    }
 }
 
 /*
