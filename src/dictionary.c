@@ -7,29 +7,27 @@
 
 #define INDEX(key) dictionary->hash((key)) % dictionary->array_size
 
+void free_(void* ptr) {
+    if (ptr != DELETED) {
+        free(ptr);
+    }
+}
+
 void deleteDictionary(Dictionary* dictionary) {
     if (dictionary == NULL) {
         return;
     }
-    bool free_key = dictionary->memlocation[0];
-    bool free_val = dictionary->memlocation[1];
     for (size_t i = 0; i < dictionary->array_size; ++i) {
-        if (free_key) {
-            free(dictionary->array[i].key);
-            dictionary->array[i].key = NULL;
-        }
-        if (free_val) {
-            free(dictionary->array[i].val);
-            dictionary->array[i].val = NULL;
-        }
+        dictionary->free_key(dictionary->array[i].key);
+        dictionary->free_val(dictionary->array[i].val);
     }
-    free(dictionary->array);
+    free_(dictionary->array);
     dictionary->size = 0;
     dictionary->array_size = 0;
     dictionary->array = NULL;
 }
 
-Dictionary* newDictionary(hash_t (*hash)(void*), bool (*equal)(void*, void*), bool free_key, bool free_val) {
+Dictionary* newDictionary(hash_t (*hash)(void*), bool (*equal)(void*, void*), void (*free_key)(void*), void (*free_val)(void*)) {
     Dictionary* dictionary = calloc(1, sizeof(Dictionary));
     if (dictionary == NULL) {
         return NULL;
@@ -39,10 +37,10 @@ Dictionary* newDictionary(hash_t (*hash)(void*), bool (*equal)(void*, void*), bo
     dictionary->size = 0;
     dictionary->array_size = DICTIONARY_INITIAL_SIZE;
     dictionary->array = calloc(DICTIONARY_INITIAL_SIZE, sizeof(Entry));
-    dictionary->memlocation[0] = free_key;
-    dictionary->memlocation[1] = free_val;
+    dictionary->free_key = free_key;
+    dictionary->free_val = free_val;
     if (dictionary->array == NULL) {
-        free(dictionary);
+        free_(dictionary);
         return NULL;
     }
     return dictionary;
@@ -91,10 +89,10 @@ Status insertDictionary(Dictionary* dictionary, void* key, void* val) {
     while (dictionary->array[index].key != NULL) {
         if (dictionary->equal(dictionary->array[index].key, key)) {
             if (dictionary->array[index].key != key && free_key) {
-                free(dictionary->array[index].key);
+                free_(dictionary->array[index].key);
             }
             if (dictionary->array[index].val != val && free_val) {
-                free(dictionary->array[index].val);
+                free_(dictionary->array[index].val);
             }
             break;
         }
@@ -124,11 +122,17 @@ void deleteFromDictionary(Dictionary* dictionary, void* key) {
     if (dictionary == NULL || key == NULL) {
         return;
     }
+    bool free_key = dictionary->memlocation[0];
+    bool free_val = dictionary->memlocation[1];
     hash_t index = INDEX(key);
     while (dictionary->array[index].key != NULL) {
         if (dictionary->equal(dictionary->array[index].key, key)) {
-            free(dictionary->array[index].key);
-            free(dictionary->array[index].val);
+            if (free_key) {
+                free_(dictionary->array[index].key);
+            }
+            if (free_val) {
+                free_(dictionary->array[index].val);
+            }
             dictionary->array[index].key = DELETED;
             dictionary->array[index].val = DELETED;
             dictionary->size--;

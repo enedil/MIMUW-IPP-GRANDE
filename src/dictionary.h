@@ -24,12 +24,13 @@ typedef struct Dictionary {
     Entry*      array;
     size_t      array_size;
     size_t      size;
-    bool        memlocation[2];
+    void        (*free_key)(void*);
+    void        (*free_val)(void*);
 } Dictionary;
 
 
 void deleteDictionary(Dictionary* dictionary);
-Dictionary* newDictionary(hash_t (*hash)(void*), bool (*equal)(void*, void*), bool free_key, bool free_val);
+Dictionary* newDictionary(hash_t (*hash)(void*), bool (*equal)(void*, void*), void (*free_key)(void*), void (*free_val)(void*));
 Status insertDictionary(Dictionary* dictionary, void* key, void* val);
 Entry getDictionary(Dictionary* dictionary, void* key);
 void deleteFromDictionary(Dictionary* dictionary, void* key);
