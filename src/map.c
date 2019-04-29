@@ -685,16 +685,20 @@ FREE:
     return ret;
 }
 
-void vectorDeleteFreeListContent(Vector* vector) {
+void vectorDeleteFreeListContent(Vector* vector, bool x) {
     if (vector == NULL) {
         return;
     }
     for (size_t i = 0; i < vector->size; ++i) {
-        free(((List*)vector->arr[i])->begin);
+        if (x) {
+            free(((List*)vector->arr[i])->begin);
+        } else {
+            deleteList(vector->arr[i]);
+        }
         free(vector->arr[i]);
         vector->arr[i] = NULL;
     }
-    vectorDelete(vector);
+    vectorDeleteFreeContent(vector);
 }
 
 bool removeRoad(Map *map, const char *city1, const char *city2) {
@@ -759,13 +763,13 @@ bool removeRoad(Map *map, const char *city1, const char *city2) {
                         int b = n->next->value;
                         Entry e = getDictionary(&map->routesThrough, encodeEdgeAsPtr(a, b));
                         List* l = e.val;
-                        if (l->end->prev->value == routeId) {
+                        if (l->end->prev->value == (int)routeId) {
                             deleteListNode(l, l->end);
                         }
                     }
                     rindex -= 1;
                 }
-                goto FREE;
+                goto FREE_V;
             }
         }
         index++;
@@ -791,14 +795,16 @@ bool removeRoad(Map *map, const char *city1, const char *city2) {
 
     deleteList(routesThrough);
     deleteFromDictionary(&map->routesThrough, encodeEdgeAsPtr(id1, id2));
-    vectorDeleteFreeListContent(new_routes);
+    //vectorDeleteFreeListContent(new_routes);
     deleteFromDictionary(map->neighbours.arr[id1], &id2);
     deleteFromDictionary(map->neighbours.arr[id2], &id1);
 
     ret = true;
+FREE_V:
 FREE:
-    //deleteVectorOfLists(new_routes);
-    //vectorDeleteFreeContent(new_routes);
+    vectorDeleteFreeListContent(new_routes, ret);
+
+
     free(new_routes);
     return ret;
 }

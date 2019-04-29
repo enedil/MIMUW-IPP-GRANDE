@@ -143,5 +143,6 @@ void swap(int* x, int* y) {
 }
 
 void empty(void* v) {
-
+    int* x = v;
+    x++;
 }
