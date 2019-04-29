@@ -28,8 +28,11 @@ typedef struct Map {
     Route routes[ROUTE_MAX];
     /// each neighbour holds a Dictionary[int, Road]
     Vector neighbours;
+    /// each int_to_city element holds a char*
     Vector int_to_city;
+    /// Dictionary[char*, int]
     Dictionary city_to_int;
+    /// Dictionary[(int, int), List[int]]
     Dictionary routesThrough;
 } Map;
 
@@ -127,12 +130,10 @@ Status addCity(Map *map, const char* city) {
     CHECK_RET(c);
     strcpy(c, city);
 
-    //int* city_id = malloc(sizeof(int));
-    //*city_id = (int)map->city_to_int.size;
-    void* city_id = (void*)((map->city_to_int.size << 32) + 1);
+    void* city_id = encodeCityId(map->city_to_int.size);
     CHECK_RET(insertDictionary(&map->city_to_int, (void*)c, city_id));
 
-    Dictionary *d = newDictionary(hash_int, equalInt, false, true);
+    Dictionary *d = newDictionary(hashInt, equalInt, false, true);
     if (d == NULL) {
         goto DELETE_FROM_DICTIONARY;
     }
@@ -172,11 +173,9 @@ bool addRoad(Map *map, const char *city1, const char *city2,
 
     e1 = getDictionary(&map->city_to_int, (void*)city1);
     e2 = getDictionary(&map->city_to_int, (void*)city2);
+    int id1 = decodeCityId(e1.val);
+    int id2 = decodeCityId(e2.val);
 
-    //int id1 = *(int*)e1.val;
-    //int id2 = *(int*)e2.val;
-    int id1 = ((uint64_t)e1.val >> 32);
-    int id2 = ((uint64_t)e2.val >> 32);
     Entry edge12 = getDictionary((map->neighbours.arr)[id1], &id2);
     Entry edge21 = getDictionary((map->neighbours.arr)[id2], &id1);
     if (!NOT_FOUND(edge12) || !NOT_FOUND(edge21)) {
@@ -233,10 +232,8 @@ bool repairRoad(Map *map, const char *city1, const char *city2, int repairYear)
     Entry e2 = getDictionary(&map->city_to_int, (void*)city2);
     CHECK_RET(NOT_FOUND(e2) == false);
 
-    //int id1 = *(int*)e1.val;
-    //int id2 = *(int*)e2.val;
-    int id1 = ((uint64_t)e1.val >> 32);
-    int id2 = ((uint64_t)e2.val >> 32);
+    int id1 = decodeCityId(e1.val);
+    int id2 = decodeCityId(e2.val);
 
 
     Entry edge12 = getDictionary((map->neighbours.arr)[id1], &id2);
@@ -270,7 +267,7 @@ Road nextNeighbour(Map* map, int src, bool reset) {
 }
 
 Status shortestPaths(Map* map, int A, int B, bool visited[], int prev[], uint64_t* d, int* w) {
-    const uint64_t infinity = -1;
+    const uint64_t infinity = UINT64_MAX;
 
     size_t cities_no = map->city_to_int.size;
     if (cities_no != map->neighbours.size) {
@@ -352,37 +349,35 @@ FREE_MEMORY:
     return vis;
 }
 
-bool appendPath(Dictionary* routesThrough, int routeId, List* route, int* prev, bool to_end) {
+bool appendPath(Dictionary* routesThrough, int routeId, List* route, int* prev, Node* after) {
     int current;
-    if (to_end) {
-        current = route->end->prev->value;
-    } else {
-        current = route->begin->next->value;
+    if (route) {
+        if (to_end) {
+            current = route->end->prev->value;
+        } else {
+            current = route->begin->next->value;
+        }
     }
     int inserted_count = 0;
     while (current != -1 && prev[current] != -1) {
         int p = current;
         current = prev[current];
-        bool v;
-        if (to_end) {
-            v = listInsertBefore(route, route->end, current);
-        } else {
-            v = listInsertAfter(route, route->begin, current);
+        bool v = true;
+        if (route != NULL) {
+            v = listInsertAfter(route, after, current);
         }
         if (v == false) {
             for (int i = 0; i < inserted_count; ++i) {
-                if (to_end) {
-                    deleteListNode(route, route->end->prev);
-                } else {
-                    deleteListNode(route, route->begin->next);
-                }
+                deleteListNode(route, after);
             }
             return false;
         }
         inserted_count++;
-        Entry e = getDictionary(routesThrough, encodeEdgeAsPtr(p, current));
-        List* l = e.val;
-        listInsertAfter(l, l->begin, routeId);
+        if (routesThrough != NULL) {
+            Entry e = getDictionary(routesThrough, encodeEdgeAsPtr(p, current));
+            List* l = e.val;
+            listInsertAfter(l, l->begin, routeId);
+        }
     }
     return true;
 }
@@ -399,12 +394,8 @@ bool newRoute(Map *map, unsigned routeId,
     CHECK_RET(NOT_FOUND(e1) == false);
     Entry e2 = getDictionary(&map->city_to_int, (void*)city2);
     CHECK_RET(NOT_FOUND(e2) == false);
-
-//    int id1 = *(int*)e1.val;
-//    int id2 = *(int*)e2.val;
-    int id1 = ((uint64_t)e1.val >> 32);
-    int id2 = ((uint64_t)e2.val >> 32);
-
+    int id1 = decodeCityId(e1.val);
+    int id2 = decodeCityId(e2.val);
 
     bool ret = false;
 
@@ -432,7 +423,7 @@ bool newRoute(Map *map, unsigned routeId,
     if (listInsertAfter(l, l->begin, id2) == false) {
         goto FREE_ROUTE;
     }
-    if (appendPath(&map->routesThrough, routeId, l, prev, false) == false) {
+    if (appendPath(&map->routesThrough, routeId, l, prev, l->begin) == false) {
         goto FREE_ROUTE;
     }
 
@@ -525,7 +516,6 @@ char const* getRouteDescription(Map *map, unsigned routeId) {
     return description;
 }
 
-
 bool extendRoute(Map *map, unsigned routeId, const char *city) {
     CHECK_RET(map);
     CHECK_RET(1 <= routeId && routeId < ROUTE_MAX);
@@ -535,10 +525,7 @@ bool extendRoute(Map *map, unsigned routeId, const char *city) {
 
     Entry e = getDictionary(&map->city_to_int, (void*)city);
     CHECK_RET(NOT_FOUND(e) == false);
-    //int id = *(int*)e.val;
-    int id = ((uint64_t)e.val >> 32);
-
-
+    int id = decodeCityId(e.val);
 
     bool ret = false;
     bool* visited1 = NULL;
@@ -585,7 +572,7 @@ bool extendRoute(Map *map, unsigned routeId, const char *city) {
             goto FREE;
         }
     } else {
-        if (appendPath(&map->routesThrough, routeId, route, prev2, true) == false) {
+        if (appendPath(&map->routesThrough, routeId, route, prev2, route->end) == false) {
             goto FREE;
         }
     }
@@ -599,7 +586,56 @@ FREE:
     return ret;
 }
 
-/*
+List* repairRoute(Map *map, unsigned routeId, int id1, int id2) {
+    const uint64_t infinity = UINT64_MAX;
+    List* cities = &map->routes[routeId].cities;
+    size_t cities_no = map->city_to_int.size;
+
+    bool* visited;
+    int* prev;
+    List* ret = NULL;
+
+    visited = calloc(cities_no, sizeof(bool));
+    prev  = calloc(cities_no, sizeof(int));
+    if (visited == NULL || prev == NULL) {
+        goto FREE;
+    }
+    for (size_t i = 0; i < cities_no; ++i) {
+        prev[i] = -1;
+    }
+    for (Node* n = cities->begin->next; n != cities->end; n = n->next) {
+        visited[n->value] = true;
+    }
+    visited[id1] = false;
+    visited[id2] = false;
+
+    uint64_t d;
+    int w;
+    if (shortestPaths(map, id2, id1, visited, prev, &d, &w) == false) {
+        goto FREE;
+    }
+    if (d == infinity) {
+        goto FREE;
+    }
+
+    ret = copyList(cities);
+    if (ret == NULL) {
+        goto FREE;
+    }
+    if (listInsertAfter(ret, ret->begin, cities->begin->next->value) == false) {
+        goto FREE;
+    }
+    if (appendPath(NULL, 0, ret, prev, ret->end) == false) {
+        deleteList(ret);
+        ret = NULL;
+        goto FREE;
+    }
+FREE:
+    free(prev);
+    free(visited);
+    return ret;
+}
+
 bool removeRoad(Map *map, const char *city1, const char *city2) {
     CHECK_RET(map);
     CHECK_RET(possiblyValidRoad(city1, city2));
@@ -609,6 +645,29 @@ bool removeRoad(Map *map, const char *city1, const char *city2) {
     Entry e2 = getDictionary(&map->city_to_int, (void*)city2);
     CHECK_RET(NOT_FOUND(e2) == false);
 
-    getRoad(e1.val)
+    int id1 = decodeCityId(e1.val);
+    int id2 = decodeCityId(e2.val);
+    Road road = getRoad(map, id1, id2);
+    if (road.builtYear == 0 || road.start != id1 || road.end != id2) {
+        return false;
+    }
+
+    Entry e = getDictionary(&map->routesThrough, encodeEdgeAsPtr(id1, id2));
+    CHECK_RET(NOT_FOUND(e) == false);
+    List* routesThrough = e.val;
+    Vector* new_routes = newVector();
+    if (new_routes == NULL) {
+        return false;
+    }
+    for (Node* n = routesThrough->begin->next; n != routesThrough->end; n = n->next) {
+        List* l = repairRoute(map, n->value, id1, id2);
+        if (l == NULL || vectorAppend(new_routes, l) == false) {
+            deleteVectorOfLists(new_routes);
+            free(new_routes);
+            return false;
+        }
+    }
+
+    return true;
 }
-*/
+
