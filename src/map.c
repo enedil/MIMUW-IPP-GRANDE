@@ -5,36 +5,9 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "dictionary.h"
-#include "list.h"
-#include "map.h"
+#include "map_struct.h"
 #include "utils.h"
-#include "vector.h"
-
-#define ROUTE_MAX 1000
-
-typedef struct Route {
-    List cities;
-} Route;
-
-typedef struct Road {
-    uint64_t length;
-    int start;
-    int end;
-    int builtYear;
-} Road;
-
-typedef struct Map {
-    Route routes[ROUTE_MAX];
-    /// each neighbour holds a Dictionary[int, Road]
-    Vector neighbours;
-    /// each int_to_city element holds a char*
-    Vector int_to_city;
-    /// Dictionary[char*, int]
-    Dictionary city_to_int;
-    /// Dictionary[(int, int), List[int]]
-    Dictionary routesThrough;
-} Map;
+#include "shortest_paths.h"
 
 static void deleteRoutes(Map* map) {
     for (int i = 0; i < ROUTE_MAX; ++i) {
@@ -276,108 +249,8 @@ bool repairRoad(Map *map, const char *city1, const char *city2, int repairYear)
     return true;
 }
 
-Road nextNeighbour(Map* map, int src, bool reset) {
-    static unsigned x;
-    if (reset) {
-        x = 0;
-        return (const Road){0};
-    }
-    Dictionary* neighbours = map->neighbours.arr[src];
-    do {
-        x = (x + 1) % neighbours->array_size;
-    } while (NOT_FOUND(neighbours->array[x]));
-    return *(Road*)(neighbours->array[x].val);
-}
 
-Status shortestPaths(Map* map, int A, int B, bool visited[], int prev[], uint64_t* d, int* w, bool fixing) {
-    const uint64_t infinity = UINT64_MAX;
 
-    size_t cities_no = map->city_to_int.size;
-    if (cities_no != map->neighbours.size) {
-        abort();
-    }
-
-    uint64_t *dist = NULL;
-    List* queue = NULL;
-    bool vis = false;
-    bool* is_in_queue = NULL;
-    int *time = NULL;
-
-    dist = malloc(cities_no * sizeof (uint64_t));
-    CHECK_RET(dist);
-
-    for (size_t i = 0; i < cities_no; ++i) {
-        dist[i] = infinity;
-    }
-    dist[A] = 0;
-
-    is_in_queue = calloc(cities_no, sizeof(bool));
-    if (is_in_queue == NULL) {
-        goto FREE_MEMORY;
-    }
-
-    queue = newList();
-    if (queue == NULL) {
-        goto FREE_MEMORY;
-    }
-    listInsertAfter(queue, queue->begin, A);
-
-    time = calloc(cities_no, sizeof (int));
-    if (time == NULL) {
-        goto FREE_MEMORY;
-    }
-    for (size_t i = 0; i < cities_no; ++i) {
-        time[i] = INT_MAX;
-    }
-
-    while (queue->begin->next != queue->end) {
-        int x = queue->begin->next->value;
-        deleteListNode(queue, queue->begin->next);
-        if (visited[x] == true) {
-            continue;
-        }
-        //visited[x] = true;
-        is_in_queue[x] = false;
-        // reset counter
-        Road road = nextNeighbour(map, x, true);
-        Dictionary* neighbours = map->neighbours.arr[x];
-
-        for (size_t i = 0; i < neighbours->size; ++i) {
-            road = nextNeighbour(map, x, false);
-            if (fixing == false || encodeEdgeAsPtr(A, B) != encodeEdgeAsPtr(road.start, road.end)) {
-   //         if (visited[road.end] == false) {
-                bool p1 = dist[road.end] > road.length + dist[x];
-                bool p2 = dist[road.end] == road.length + dist[x];
-                if (p1 || (p2 && time[road.end] <= min(time[x], road.builtYear))) {
-                    /*if (road.end == B && p2 && time[road.end] == min(time[x], road.builtYear)) {
-                        vis = false;
-                        goto FREE_MEMORY;
-                    }*/
-                    prev[road.end] = x;
-                    dist[road.end] = road.length + dist[x];
-                    time[road.end] = min(time[x], road.builtYear);
-                    if (is_in_queue[road.end] == false) {
-                        if (listInsertAfter(queue, queue->end, road.end) == false) {
-                            goto FREE_MEMORY;
-                        }
-                        is_in_queue[road.end] = true;
-                    }
-                }
-            }
-        }
-    }
-    vis = visited[B] < infinity;
-    *d = dist[B];
-    *w = time[B];
-
-FREE_MEMORY:
-    deleteList(queue);
-    free(queue);
-    free(dist);
-    free(is_in_queue);
-    free(time);
-    return vis;
-}
 
 bool appendPath(Dictionary* routesThrough, unsigned routeId, List* route, int* prev, Node* after) {
     int current = after->value;

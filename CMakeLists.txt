@@ -34,6 +34,9 @@ set(SOURCE_FILES
     src/vector.c
     src/vector.h
     src/status.h
+    src/shortest_paths.c
+    src/shortest_paths.h
+    src/map_struct.h
     src/map_tests.c)
 
 # Wskazujemy plik wykonywalny.

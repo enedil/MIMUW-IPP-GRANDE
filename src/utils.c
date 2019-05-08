@@ -81,6 +81,14 @@ size_t intLength(int64_t x) {
     return strlen(b);
 }
 
+
+void* encodeCityId(int id) {
+    uint64_t ret = id;
+    ret <<= 32;
+    ret |= 3;
+    return (void*)ret;
+}
+
 void* encodeEdgeAsPtr(int a, int b) {
     uint64_t ret = 0;
     if (a <= b) {
@@ -89,13 +97,6 @@ void* encodeEdgeAsPtr(int a, int b) {
     } else {
         return encodeEdgeAsPtr(b, a);
     }
-    return (void*)ret;
-}
-
-void* encodeCityId(int id) {
-    uint64_t ret = id;
-    ret <<= 32;
-    ret |= 3;
     return (void*)ret;
 }
 

@@ -1,3 +1,6 @@
+#ifndef __MAP_STRUCT_H__
+#define __MAP_STRUCT_H__
+
 #include "dictionary.h"
 #include "list.h"
 #include "map.h"
@@ -28,3 +31,4 @@ typedef struct Map {
     Dictionary routesThrough;                                                    
 } Map;                                                                           
 
+#endif /* __MAP_STRUCT_H__ */
