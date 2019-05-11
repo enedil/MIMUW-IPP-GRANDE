@@ -8,6 +8,8 @@
 #include "utils.h"
 #include "shortest_paths.h"
 
+#define INFINITY UINT64_MAX
+
 static void deleteRoutes(Map* map) {
     for (int i = 0; i < ROUTE_MAX; ++i) {
         deleteList(&map->routes[i].cities);
@@ -248,9 +250,6 @@ bool repairRoad(Map *map, const char *city1, const char *city2, int repairYear)
     return true;
 }
 
-
-
-
 bool appendPath(Dictionary* routesThrough, unsigned routeId, List* route, int* prev, Node* after) {
     int current = after->value;
     int inserted_count = 0;
@@ -262,6 +261,7 @@ bool appendPath(Dictionary* routesThrough, unsigned routeId, List* route, int* p
         current = route->end->prev->value;
         x = after->prev;
     } else {
+        fprintf(stderr, "WAT\n");
         x = after;
     }
     while (current != -1 && prev[current] != -1) {
@@ -279,12 +279,11 @@ bool appendPath(Dictionary* routesThrough, unsigned routeId, List* route, int* p
         }
         if (routesThrough != NULL) {
             Entry e = getDictionary(routesThrough, encodeEdgeAsPtr(p, current));
-            if (NOT_FOUND(e)) {
-
-            }
+            assert(!NOT_FOUND(e));
             List* l = e.val;
             if (listInsertAfter(l, l->begin, routeId) == false) {
                 //dsdsfds
+                fprintf(stderr, "wat1\n");
                 x++;
                 x--;
             }
@@ -452,16 +451,18 @@ bool extendRoute(Map *map, unsigned routeId, const char *city) {
     CHECK_RET(NOT_FOUND(e) == false);
     int id = decodeCityId(e.val);
 
+    List* route = &map->routes[routeId].cities;
+    size_t cities_no = map->city_to_int.size;
+    uint64_t d1, d2;
+    int w1, w2;
+
+    CHECK_RET(id != route->begin->next->value && id != route->end->prev->value);
+
     bool ret = false;
     bool* visited1 = NULL;
     bool* visited2 = NULL;
     int* prev1 = NULL;
     int* prev2 = NULL;
-
-    List* route = &map->routes[routeId].cities;
-    size_t cities_no = map->city_to_int.size;
-    uint64_t d1, d2;
-    int w1, w2;
 
     visited1 = calloc(cities_no, sizeof(bool));
     prev1 = malloc(cities_no * sizeof(int));
@@ -491,15 +492,15 @@ bool extendRoute(Map *map, unsigned routeId, const char *city) {
     if (shortestPaths(map, id, route->end->prev->value, visited2, prev2, &d2, &w2, false) == false) {
         goto FREE;
     }
-
+    if (d1 == INFINITY && d2 == INFINITY) {
+        goto FREE;
+    }
     if (d1 < d2 || (d1 == d2 && w1 >= w2)) {
-        if (d1 == 0 || appendPath(&map->routesThrough, routeId, route, prev1, route->begin) == false) {
+        if (appendPath(&map->routesThrough, routeId, route, prev1, route->begin) == false) {
             goto FREE;
         }
-    } else {
-        if (d2 == 0 || appendPath(&map->routesThrough, routeId, route, prev2, route->end) == false) {
-            goto FREE;
-        }
+    } else if (appendPath(&map->routesThrough, routeId, route, prev2, route->end) == false) {
+        goto FREE;
     }
 
     ret = true;
@@ -509,6 +510,18 @@ FREE:
     free(prev1);
     free(prev2);
     return ret;
+}
+
+Status extendPathFromPrev(List* route, int* prev, int start, int end) {
+    int current = start;
+    while (current != -1 && current != end) {
+        if (listInsertAfter(route, route->begin, current) == false) {
+            //deleteList(route);
+            return false;
+        }
+        current = prev[current];
+    }
+    return true;
 }
 
 List* repairRoute(Map *map, unsigned routeId, int id1, int id2) {
@@ -547,10 +560,7 @@ List* repairRoute(Map *map, unsigned routeId, int id1, int id2) {
     if (ret == NULL) {
         goto FREE;
     }
-    if (listInsertAfter(ret, ret->begin, prev[id1]) == false) {
-        goto FREE;
-    }
-    if (appendPath(NULL, 0, ret, prev, ret->end) == false) {
+    if (extendPathFromPrev(ret, prev, id1, id2) == false) {
         deleteList(ret);
         free(ret);
         ret = NULL;
@@ -610,10 +620,10 @@ bool removeRoad(Map *map, const char *city1, const char *city2) {
         if (l == NULL) {
             goto FREE;
         }
-        if (listInsertBefore(l, l->begin, id1) == false) {
+        if (listInsertBefore(l, l->end, id1) == false) {
             goto FREE;
         }
-        if (listInsertAfter(l, l->end, id2) == false) {
+        if (listInsertAfter(l, l->begin, id2) == false) {
             goto FREE;
         }
         if (vectorAppend(new_routes, l) == false) {

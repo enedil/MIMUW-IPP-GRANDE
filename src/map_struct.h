@@ -13,10 +13,10 @@ typedef struct Route {
 } Route;                                                                         
                                                                                  
 typedef struct Road {                                                            
-    uint64_t length;                                                             
+    uint64_t length;
+    int builtYear;
     int start;                                                                   
-    int end;                                                                     
-    int builtYear;                                                               
+    int end;
 } Road;                                                                          
                                                                                  
 typedef struct Map {                                                             
