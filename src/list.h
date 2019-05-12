@@ -26,5 +26,6 @@ void listEmplaceNode(List* list, Node* after, Node* val);
 void insertListAfterElement(List* l, List* new, int el);
 size_t listPos(List* l, int el);
 void listReverse(List* l);
+Node* listFind(List* l, int el);
 
 #endif /* __LIST_H__ */

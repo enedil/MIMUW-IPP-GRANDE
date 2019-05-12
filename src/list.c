@@ -160,3 +160,12 @@ void listReverse(List* l) {
         swap(&b->value, &e->value);
     }
 }
+
+Node* listFind(List* l, int el) {
+    for (Node* n = l->begin->next; n != l->end; n = n->next) {
+        if (n->value == el) {
+            return n;
+        }
+    }
+    return NULL;
+}
