@@ -86,8 +86,8 @@ Status shortestPaths_(
         if (visited[x] == true) {
             continue;
         }
-        //visited[x] = true;
         is_in_queue[x] = false;
+
         // reset counter
         Road road = nextNeighbour(map, x, true);
         Dictionary* neighbours = map->neighbours.arr[x];
