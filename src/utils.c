@@ -81,7 +81,6 @@ size_t intLength(int64_t x) {
     return strlen(b);
 }
 
-
 void* encodeCityId(int id) {
     uint64_t ret = id;
     ret <<= 32;
@@ -125,7 +124,6 @@ bool equalInt(void* p1, void* p2) {
     }
     return 0 == memcmp(p1, p2, sizeof(int));
 }
-
 
 void deleteVectorOfLists(Vector* vector) {
     if (vector == NULL) {
