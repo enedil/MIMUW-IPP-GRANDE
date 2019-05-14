@@ -57,15 +57,42 @@ void* encodeCityId(int id);
 int decodeCityId(void* p);
 
 /** @brief Wybiera mniejszą z dwóch liczb.
- * @param a[in]       - pierwsza z liczb
- * @param b[in]       - druga z liczb.
+ * @param a[in]          - pierwsza z liczb
+ * @param b[in]          - druga z liczb.
  * @return Mniejsza z liczb a, b.
  */
 int min(int a, int b);
+
+/** @brief Funkcja skrótu dla liczb całkowitych (int)
+ * @param p[in]          - liczba całkowita do skrócenia
+ * @return
+ */
 hash_t hashInt(void* p);
+
+/** @brief Porównuje dwie liczby
+ * @param p1[in]         - pierwsza z liczb do porównania
+ * @param p2[in]         - druga z liczb do porównania
+ * @return wartośc logiczna czy p1 jest równe p2
+ */
 bool equalInt(void* p1, void* p2);
+
+/** @brief Usuwa wektor list, zwalniając przeznaczoną na elementy pamięć.
+ * @param vector[in,out] - wektor do opróżnienia
+ */
 void deleteVectorOfLists(Vector* vector);
+
+/** @brief Zamienia wartościami zawartości wskaźników @p x i @p y
+ * @param x[in,out]       - wskaźnik na pierwszą z liczb
+ * @param y[in,out]       - wskaźnik na drugą z licz
+ */
 void swap(int* x, int* y);
-void empty(void*);
+
+/** @brief Pusta funkcja.
+ * Funkcja służy do wstawienia do słownika, w którym klucze lub wartości nie
+ * wymagają zwalniania (np. znajdują się na stosie, nie wskazują na istotne dane
+ * i nigdy nie są dereferencjonowane, bądź wskazują na zmienne globalne).
+ * @param ptr[in]         - nieistotny wskaźnik
+ */
+void empty(void* ptr);
 
 #endif /* __STRING_UTILS__ */

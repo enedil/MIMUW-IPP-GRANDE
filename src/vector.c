@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include "vector.h"
 
-Vector* newVector() {
+Vector* newVector(void) {
     Vector* n = malloc(sizeof(Vector));
     if (n == NULL) {
         return NULL;

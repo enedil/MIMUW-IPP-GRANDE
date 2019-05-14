@@ -144,13 +144,17 @@ void insertListAfterElement(List* l, List* new, int el) {
     }
 }
 
-size_t listPos(List* l, int el) {
+ssize_t listPos(List* l, int el) {
     size_t ret = 0;
-    for (Node* n = l->begin->next; n != l->end; n = n->next) {
+    Node* n;
+    for (n = l->begin->next; n != l->end; n = n->next) {
         if (n->value == el) {
             break;
         }
         ret++;
+    }
+    if (n == l->end) {
+        return -1;
     }
     return ret;
 }
@@ -162,6 +166,9 @@ void listReverse(List* l) {
 }
 
 Node* listFind(List* l, int el) {
+    if (l == NULL) {
+        return NULL;
+    }
     for (Node* n = l->begin->next; n != l->end; n = n->next) {
         if (n->value == el) {
             return n;

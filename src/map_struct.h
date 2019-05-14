@@ -8,17 +8,26 @@
 
 #define ROUTE_MAX 1000
 
+/**
+  * Struktura przechowująca informację o drodze krajowej.
+  */
 typedef struct Route {                                                           
     List cities;                                                                 
 } Route;                                                                         
-                                                                                 
+
+/**
+  * Struktura przechowująca informację o odcinku drogowym.
+  */
 typedef struct Road {                                                            
     uint64_t length;
     int builtYear;
     int start;                                                                   
     int end;
 } Road;                                                                          
-                                                                                 
+
+/**
+  * Struktura przechowująca informację o mapie połączeń.
+  */
 typedef struct Map {                                                             
     Route routes[ROUTE_MAX];                                                     
     /// each neighbour holds a Dictionary[int, Road]                             
