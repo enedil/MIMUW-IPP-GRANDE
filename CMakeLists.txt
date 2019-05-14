@@ -28,7 +28,7 @@ set(SOURCE_FILES
     src/list.h
     src/map.c
     src/map.h
-    #src/map_main.c
+    src/map_main.c
     src/utils.c
     src/utils.h
     src/vector.c
@@ -38,7 +38,7 @@ set(SOURCE_FILES
     src/shortest_paths.h
     src/map_struct.h
     #src/map_tests.c
-    src/mmain.c
+    #src/mmain.c
     )
 
 # Wskazujemy plik wykonywalny.

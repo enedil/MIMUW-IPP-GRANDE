@@ -2,6 +2,7 @@
 #define __LIST_H__
 
 #include <stdlib.h>
+#include <sys/types.h>
 #include "status.h"
 
 /** Struktura węzła listy dwukierunkowej.

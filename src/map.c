@@ -253,16 +253,16 @@ bool repairRoad(Map *map, const char *city1, const char *city2, int repairYear)
 bool appendPath(Dictionary* routesThrough, unsigned routeId, List* route, int* prev, Node* after) {
     int current = after->value;
     int inserted_count = 0;
-    Node* x;
+    //Node* x;
     if (after == route->begin) {
         current = route->begin->next->value;
-        x = after->next;
+    //    x = after->next;
     } else if (after == route->end) {
         current = route->end->prev->value;
-        x = after->prev;
+    //    x = after->prev;
     } else {
         fprintf(stderr, "WAT\n");
-        x = after;
+    //    x = after;
     }
     while (current != -1 && prev[current] != -1) {
         int p = current;
@@ -669,7 +669,7 @@ bool removeRoad(Map *map, const char *city1, const char *city2) {
                     }
                     rindex -= 1;
                 }
-                goto FREE_V;
+                goto FREE;
             }
         }
         index++;
