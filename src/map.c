@@ -282,10 +282,7 @@ bool appendPath(Dictionary* routesThrough, unsigned routeId, List* route, int* p
             assert(!NOT_FOUND(e));
             List* l = e.val;
             if (listInsertAfter(l, l->begin, routeId) == false) {
-                //dsdsfds
-                fprintf(stderr, "wat1\n");
-                x++;
-                x--;
+                // TODO: co tutaj zrobić?
             }
         }
         inserted_count++;
@@ -589,6 +586,21 @@ void vectorDeleteFreeListContent(Vector* vector, bool x) {
     vectorDeleteFreeContent(vector);
 }
 
+bool routeIsValid(Map* map, Route* route) {
+    List l = route->cities;
+    Node* n = l.begin->next;
+    Node* nn = l.begin->next->next;
+    while (nn != l.end) {
+        Road r = getRoad(map, n->value, nn->value);
+        if (r.builtYear == 0) {
+            return false;
+        }
+        n = n->next;
+        nn = nn->next;
+    }
+    return true;
+}
+
 bool removeRoad(Map *map, const char *city1, const char *city2) {
 
     CHECK_RET(map);
@@ -667,16 +679,31 @@ bool removeRoad(Map *map, const char *city1, const char *city2) {
     for (Node* n = routesThrough->begin->next; n != routesThrough->end; n = n->next) {
         unsigned routeId = n->value;
         List* r = &((Route*)new_routes->arr[index])->cities;
+
         int a = r->begin->next->value;
         int b = r->end->prev->value;
+        assert(a == id1 || a == id2);
+        assert(b == id2 || b == id1);
         deleteListNode(r, r->begin->next);
         deleteListNode(r, r->end->prev);
-        if (listPos(&map->routes[routeId].cities, a) <= listPos(&map->routes[routeId].cities, b)) {
+        Node* anode = listFind(&map->routes[routeId].cities, id1);
+        if (anode == NULL) {
+            //abort();
+        }
+        if (anode->next->value == b) {
             insertListAfterElement(&map->routes[routeId].cities, r, a);
-        } else {
+        } else if (anode->prev->value == b) {
             listReverse(r);
             insertListAfterElement(&map->routes[routeId].cities, r, b);
+        } else {
+            int x = 0;
+            x++;
+
+            //abort();
         }
+        //if (listPos(&map->routes[routeId].cities, a) <= listPos(&map->routes[routeId].cities, b)) {
+       // } else {
+       // }
         index++;
     }
 
@@ -686,7 +713,6 @@ bool removeRoad(Map *map, const char *city1, const char *city2) {
     deleteFromDictionary(map->neighbours.arr[id2], &id1);
 
     ret = true;
-FREE_V:
 FREE:
     vectorDeleteFreeListContent(new_routes, ret);
     free(new_routes);
