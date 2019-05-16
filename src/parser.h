@@ -2,6 +2,7 @@
 #define __PARSER_H__
 
 #include <ctype.h>
+#include "status.h"
 
 enum opcode {
     OP_ERROR,
@@ -24,5 +25,15 @@ struct operation {
  * @return struktura reprezentująca status parsowania linii
  */
 struct operation parse(char* line, size_t length);
+
+/** @brief Wyciąga długość drogi z wskaźnika arg.
+ * Funkcja zapisuje pod wskaźnikiem @p length znalezioną długość drogi, o ile
+ * początkowy fragment @p arg jest poprawną długością drogi, i poprawny fragment
+ * kończy się bajtem zerowym, bądź średnikiem.
+ * @param[in] arg       - linia wejścia
+ * @param[out] length   - długość drogi
+ * @return Status powodzenia operacji.
+ */
+Status extractRoadLength(char* arg, unsigned long long* length);
 
 #endif /* __PARSER_H__ */

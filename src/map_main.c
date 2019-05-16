@@ -22,7 +22,27 @@ int main() {
             exit(0);
         }
         struct operation op = parse(line, strlen(line));
-        printf("%d %s\n", op.op, op.arg);
+        switch (op.op) {
+        case OP_ADD_ROAD:
+            printf("addRoad");
+            break;
+        case OP_ERROR:
+            printf("error");
+            break;
+        case OP_NEW_ROUTE:
+            printf("newRoute");
+            break;
+        case OP_NOOP:
+            printf("noop");
+            break;
+        case OP_REPAIR_ROAD:
+            printf("repairRoad");
+            break;
+        case OP_ROUTE_DESCRIPTION:
+            printf("routeDescription");
+            break;
+        }
+        printf(" %s\n", op.arg);
     }
 
     deleteMap(m);

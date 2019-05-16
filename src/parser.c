@@ -3,9 +3,11 @@
 #include <string.h>
 #include <errno.h>
 
+
+#include "dictionary.h"
+#include "map_struct.h"
 #include "parser.h"
 #include "utils.h"
-#include "dictionary.h"
 
 /** @brief Sprawdza, czy łańcuch znaków tworzy poprawną liczbę całkowitą.
  * @param data[in]          - łańcuch znaków do sprawdzenia
@@ -47,6 +49,10 @@ static size_t countChar(char* str, char c) {
     return count;
 }
 
+/** @brief Liczy skrót (hasz) stringa zakończonego bajtem zerowym, bądź średnikiem.
+ * @param ptr                 - string
+ * @return wartość skrótu
+ */
 static hash_t hashSemicolonTerminated(void* ptr) {
     uint8_t* str = ptr;
     hash_t ret = 1;
@@ -58,6 +64,9 @@ static hash_t hashSemicolonTerminated(void* ptr) {
 }
 
 static bool cmpSemicolonTerminated(void* ptr1, void* ptr2) {
+    if (ptr1 == DELETED || ptr2 == DELETED) {
+        return false;
+    }
     uint8_t* str1 = ptr1, * str2 = ptr2;
     while (*str1 && *str1 != ';' && *str2 && *str2 != ';') {
         if (*str1 != *str2) {
@@ -69,21 +78,69 @@ static bool cmpSemicolonTerminated(void* ptr1, void* ptr2) {
     return !((*str1 && *str1 != ';') || (*str2 && *str2 != ';'));
 }
 
+Status extractCityName(char* arg, char** out, size_t* size) {
+    if (arg == NULL) {
+        return false;
+    }
+    char* p = strchr(arg, ';');
+    char city[p - arg];
+    memcpy(city, arg, p - arg);
+    if (!validCityName(city)) {
+        return false;
+    }
+    if (out == NULL) {
+        return false;
+    }
+    *out = p;
+    *size = p - arg;
+    return true;
+}
+
+Status extractRoadLength(char* arg, unsigned long long* length) {
+    if (arg == NULL || length == NULL) {
+        return false;
+    }
+    char* out;
+    errno = 0;
+    *length = strtoull(arg, &out, 10);
+    return (*length > 0) && (*length < UINT32_MAX) && (errno == 0) && (*out == 0 || *out == ';');
+}
+
+Status extractYear(char* arg, int* year) {
+    if (arg == NULL || year == NULL) {
+        return false;
+    }
+    char* out;
+    errno = 0;
+    long x = 1;
+    x = strtol(arg, &out, 10);
+    if (x == 0 || errno != 0 || (*out != 0 && *out != ';')) {
+        return false;
+    }
+    if (x != (int)x) {
+        return false;
+    }
+    *year = (int)x;
+    return true;
+}
+
 static bool vNewRoute(char* arg) {
     bool ret = false;
     if (*arg == 0 || *arg == ';') {
         return false;
     }
     size_t semicolon_count = countChar(arg, ';');
-    if (semicolon_count % 3 != 1) {
+    if ((semicolon_count % 3 != 1) || semicolon_count <= 1) {
         return false;
     }
 
     char* ptr = arg;
-    errno = 0;
-    char* end;
-    unsigned long routeId =  strtoul(ptr, &end, 10);
-    if (errno || (*end != '\0' && *end != ';') || routeId == 0 || routeId >= 1000) {
+
+    int routeId;
+    if (!extractYear(ptr, &routeId)) {
+        return false;
+    }
+    if (routeId >= ROUTE_MAX) {
         return false;
     }
     ptr = strchr(ptr+1, ';') + 1;
@@ -91,7 +148,7 @@ static bool vNewRoute(char* arg) {
     if (detect_duplicates == NULL) {
         return false;
     }
-    for (size_t i = 0; i < semicolon_count; i += 3) {
+    for (size_t i = 0; i < semicolon_count/3; ++i) {
         Entry e = getDictionary(detect_duplicates, ptr);
         // If found, the route is invalid. If not, try to insert element.
         if (!NOT_FOUND(e) || !insertDictionary(detect_duplicates, ptr, ptr)) {
@@ -101,17 +158,14 @@ static bool vNewRoute(char* arg) {
             goto CLEANUP;
         }
         ptr = strchr(ptr + 1, ';');
-        char* end;
-        errno = 0;
-        long long int length = strtoll(ptr+1, &end, 10);
-        if (errno || (*end != '\0' && *end != ';') || length <= 0) {
+        unsigned long long length;
+        if (!extractRoadLength(ptr + 1, &length)) {
             goto CLEANUP;
         }
         ptr = strchr(ptr + 1, ';');
-        errno = 0;
-        long long year = strtoll(ptr+1, &end, 10);
-        if (errno || (*end != '\0' && *end != ';') || year == 0 || (int)year != year) {
-            return false;
+        int year;
+        if (!extractYear(ptr + 1, &year)) {
+            goto CLEANUP;
         }
         ptr = strchr(ptr + 1, ';') + 1;
     }
@@ -149,20 +203,27 @@ static bool vAddRoad(char* arg) {
         return false;
     }
 
-    char* end;
-    errno = 0;
-    long long length = strtoll(1+semicolons[1], &end, 10);
-  /*todo fix condition*/  if (errno || end == NULL || *end != '\0' || length <= 0) {
+    unsigned long long length;
+    if (!extractRoadLength(semicolons[1] + 1, &length)) {
         return false;
     }
-    errno = 0;
-    long long year = strtoll(1+semicolons[2], &end, 10);
-  /*todo*/   if (errno || end == NULL || *end != '\0' || year == 0 || year > INT_LEAST32_MAX) {
+    int year;
+    if (!extractYear(semicolons[2] + 1, &year)) {
         return false;
+    }
+    for (size_t i = 0; i < 3; ++i) {
+        *semicolons[i] = ';';
     }
     return true;
 }
 
+/** @brief Stwierdza, czy linia wejścia jest składniowo poprawna, jako operacja newRoute.
+ * W szczególności, sprawdza czy wszyskie zmienne liczbowe mieszczą się w odpowiednich
+ * zakresach, a także czy żadne miasto nie występuje na liście więcej niż raz.
+ * @param[in] arg    - linia wejścia
+ * @return Wartość @p false w przypadku błędu alokacji, a przeciwnym razie wartość
+ * logiczna poprawności linii wejścia.
+ */
 static bool vRepairRoad(char* arg) {
     char* first_semicolon = strchr(arg, ';');
     if (first_semicolon == NULL) {
@@ -184,15 +245,8 @@ static bool vRepairRoad(char* arg) {
     if (third_semicolon == NULL) {
         return false;
     }
-    if (!validNumeral(third_semicolon+1, strlen(third_semicolon+1))) {
-        return false;
-    }
-    if (strlen(third_semicolon+1) > 16) {
-        // numbers this long don't fit into unsigned integer
-        return false;
-    }
-    long long x = atoll(arg);
-    return x != 0;
+    int year;
+    return extractYear(third_semicolon+1, &year);
 }
 
 static bool vRouteDescription(char* arg) {
@@ -266,4 +320,9 @@ struct operation parse(char* line, size_t length) {
     }
     validateArgs(&ret);
     return ret;
+}
+
+Status addRoadRepair(Map* map, char* city1, char* city2,
+                     unsigned length, int builtYear) {
+
 }

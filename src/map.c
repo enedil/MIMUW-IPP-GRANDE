@@ -27,13 +27,13 @@ static void deleteAdjacencyDictionaries(Map* map) {
     }
 }
 
-void free_(void* ptr) {
+static void free_(void* ptr) {
     if (ptr != DELETED) {
         free(ptr);
     }
 }
 
-void free_list(void* ptr) {
+static void free_list(void* ptr) {
     List* l = ptr;
     if (l != NULL && l != DELETED) {
         deleteList(l);
@@ -85,7 +85,6 @@ Map* newMap(void) {
         deleteDictionary(&map->city_to_int);
     DELETE_ROUTES:
         deleteRoutes(map);
-    //DELETE_MAP:
         deleteMap(map);
     return NULL;
 }
@@ -112,8 +111,6 @@ static bool areRoadsConsistent(Road* r1, Road* r2) {
     CHECK_RET(r2->start == r1->end);
     return true;
 }
-
-
 
 Status addCity(Map *map, const char* city) {
     CHECK_RET(map);
