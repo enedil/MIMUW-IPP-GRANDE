@@ -127,8 +127,25 @@ Status extractYear(char *arg, int *year) {
     return true;
 }
 
+Status extractRouteId(char* arg, unsigned *routeId) {
+    if (arg == NULL || routeId == NULL) {
+        return false;
+    }
+    char* out;
+    unsigned long x;
+    x = strtoul(arg, &out, 10);
+    if (x == 0 || errno != 0 || (*out != 0 && *out != ';')) {
+        return false;
+    }
+    if (x >= ROUTE_MAX) {
+        return false;
+    }
+    *routeId = x;
+    return true;
+}
+
 static bool vNewRoute(char *arg) {
-    bool ret = false;
+    Status ret = false;
     if (*arg == 0 || *arg == ';') {
         return false;
     }
@@ -259,8 +276,8 @@ static bool vRouteDescription(char *arg) {
         // can't be a number less than 1000
         return false;
     }
-    int x = atoi(arg);
-    return x > 0 && x < 1000;
+    unsigned id;
+    return extractRouteId(arg, &id);
 }
 
 static void validateArgs(struct operation *ret) {
