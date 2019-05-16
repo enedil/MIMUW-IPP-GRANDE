@@ -1,4 +1,4 @@
-/** @file
+ /** @file
  * Interfejs klasy dostarczajacej struktury słownika
  */
 #ifndef __DICTIONARY_H__
