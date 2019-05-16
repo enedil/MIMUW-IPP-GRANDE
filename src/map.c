@@ -48,7 +48,7 @@ Map* newMap(void) {
     /// route number 0 is invalid, as per task descritption
     memset(map->routes, 0, ROUTE_MAX * sizeof(Route));
 
-    Dictionary* d = newDictionary(hash_string, undereferencing_strcmp, free_, empty);
+    Dictionary* d = newDictionary(hashString, undereferencing_strcmp, free_, empty);
     if (d == NULL) {
         goto DELETE_ROUTES;
     }
