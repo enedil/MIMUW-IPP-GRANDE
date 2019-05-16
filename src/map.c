@@ -327,7 +327,7 @@ bool newRoute(Map *map, unsigned routeId, const char *city1,
     int id1 = decodeCityId(e1.val);
     int id2 = decodeCityId(e2.val);
 
-    bool ret = false;
+    Status ret = false;
 
     bool *visited = NULL;
     int *prev = NULL;
@@ -480,7 +480,7 @@ bool extendRoute(Map *map, unsigned routeId, const char *city) {
 
     CHECK_RET(id != route->begin->next->value && id != route->end->prev->value);
 
-    bool ret = false;
+    Status ret = false;
     bool *visited1 = NULL;
     bool *visited2 = NULL;
     int *prev1 = NULL;
@@ -651,7 +651,7 @@ bool removeRoad(Map *map, const char *city1, const char *city2) {
     CHECK_RET(NOT_FOUND(e) == false);
     List *routesThrough = e.val;
     Vector *new_routes = newVector();
-    bool ret = false;
+    Status ret = false;
 
     if (new_routes == NULL) {
         return false;
