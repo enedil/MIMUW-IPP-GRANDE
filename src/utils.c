@@ -5,10 +5,9 @@
 #include "list.h"
 #include "utils.h"
 
-hash_t hash_string(void* str) {
+hash_t nHashString(void* str, size_t len) {
     const char* c = str;
     hash_t ret = 0;
-    size_t len = strlen(c);
     size_t x = sizeof(hash_t) * (len / sizeof(hash_t));
     for (size_t i = 0; i < x; i += sizeof(hash_t)) {
         ret ^= *(const hash_t*)(c + i);
@@ -19,6 +18,10 @@ hash_t hash_string(void* str) {
         ret ^= *(const hash_t*)rest;
     }
     return ret;
+}
+
+hash_t hashString(void* str) {
+    return nHashString(str, strlen((char*)str));
 }
 
 bool undereferencing_strcmp(void* x, void* y) {
@@ -33,17 +36,21 @@ bool undereferencing_strcmp(void* x, void* y) {
     return strcmp(a, b) == 0;
 }
 
-bool validCityName(const char* city) {
+bool nValidCityName(const char* city, size_t n) {
     char* name = (char*)city;
     CHECK_RET(name);
     CHECK_RET(*name);
-    while (*name) {
+    while (*name && (size_t)(name - city) < n) {
         if ((*name > 0 && *name < 32) || *name == ';') {
             return false;
         }
         name++;
     }
     return true;
+}
+
+bool validCityName(const char* city) {
+    return nValidCityName(city, SIZE_MAX);
 }
 
 bool possiblyValidRoad(const char* city1, const char* city2) {
