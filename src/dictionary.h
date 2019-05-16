@@ -1,5 +1,5 @@
 /** @file
- * Interfejs klasy dostarczajacej struktury słownika
+ * Interfejs dostarczajacy strukturę słownika.
  */
 #ifndef __DICTIONARY_H__
 #define __DICTIONARY_H__
