@@ -9,7 +9,15 @@
  * @param[in] str      - napis w stylu C do skrócenia.
  * @return Skrót stringa.
  */
-hash_t hash_string(void* str);
+hash_t hashString(void* str);
+
+/** @brief Skraca stringa podanego na wejściu, czytając maksymalnie @p len bajtów.
+ * Skraca stringa, tak aby można go było umieścić słowniku.
+ * @param[in] str      - napis w stylu C do skrócenia.
+ * @param[in] len      - maksymalna przeczytana długośc napisu.
+ * @return Skrót stringa.
+ */
+hash_t nHashString(void* str, size_t len);
 
 /** @brief Porównuje x i y jako stringi, o ile nie są równe NULL ani DELETED.
  * Jeżeli x lub y jest NULLem lub jest usunięty ze słownika (wartość DELETED),
@@ -27,10 +35,20 @@ bool undereferencing_strcmp(void* x, void* y);
  * Nazwa każdego miasta musi być dodatniej długości, a każdy jej znak musi być
  * z przedziału <1, 32) i nie zawierać średnika.
  * @param[in] city    - nazwa do sprawdzenia
- * @return Wartość @p true jeśli nazwa spełnia warunek, wartość @p dalse w
+ * @return Wartość @p true jeśli nazwa spełnia warunek, wartość @p false w
  * przeciwnym wypadku.
  */
 bool validCityName(const char* city);
+
+/** @brief Stwierdza, czy nazwa podana może być nazwą miasta.
+ * Różni się od funkcji @ref validCityName faktem, że czyta maksymalnie @p n
+ * znaków.
+ * @param[in] city   - nazwa do sprawdzenia
+ * @param[in] n      - maksymalna liczba znaków do sprawdzenia
+ * @return Wartość @p true jeśli nazwa spełnia warunek, wartość @p false w
+ * przeciwnym wypadku.
+ */
+bool nValidCityName(const char* city, size_t n);
 
 /** @brief Stwierdza, czy droga o końcach w city1 i city2 spełnia założenia.
  * Droga może być poprawna, jeśli city1 i city2 mogą być poprawnymi miastami,
@@ -44,6 +62,14 @@ bool possiblyValidRoad(const char* city1, const char* city2);
 
 void deleteDictionaryOfLists(Dictionary* d);
 hash_t hashEdge(void* key);
+
+/** @brief Porównuje (stwierdza równość bądź różność) krawędzi.
+ * Krawędzie są równe, jeśli zbiory ich końców są równe. Nadaje się do
+ * stosowania w słowniku.
+ * @param e1          - krawędź pierwsza
+ * @param e2          - krawędź druga
+ * @return Wartość logiczna określająca równość @p e1 i @p e2.
+ */
 bool cmpEdges(void* e1, void* e2);
 
 /** @brief Znajduje długość liczby całkowitej w zapisie dziesiętnym.
