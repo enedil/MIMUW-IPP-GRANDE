@@ -37,6 +37,8 @@ set(SOURCE_FILES
     src/shortest_paths.c
     src/shortest_paths.h
     src/map_struct.h
+    src/parser.c
+    src/parser.h
     #src/map_tests.c
     #src/mmain.c
     )
