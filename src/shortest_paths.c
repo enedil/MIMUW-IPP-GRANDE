@@ -7,6 +7,17 @@
 
 #define INFINITY UINT64_MAX
 
+/** @brief Iteruje po sąsiadach.
+ * Iterację po sąsiadach wierzchołka należy zacząć od wywołania nextNeighbour(NULL, 0, true).
+ * Kolejne wywołania funkcji nextNeighbour (z @p reset false). zwracają kolejne odcinki dróg
+ *  wychodzących z wierzchołka src. Jeśli pomiędzy wywołaniem nextNeighbour(m, x, false) i
+ * nextNeighbour(m, y, false) nie znalazło się wywołanie nextNeighbour(m, x, true), wynik
+ * operacji jest nieokreślony.
+ * @param map[in]       - mapa dróg
+ * @param src[in]       - wierzchołek, którego sąsiadów przeglądamy
+ * @param reset[in]     - zacznij od nowa iterację
+ * @return kolejny z odcinków drogowych wychodzących z wierzchołka src.
+ */
 static Road nextNeighbour(Map* map, int src, bool reset) {
     static unsigned x;
     if (reset) {
@@ -59,7 +70,7 @@ FREE_MEMORY:
     return false;
 }
 
-Status shortestPaths_(
+Status shortestPathsHelper(
         Map* map,
         int A, int B,
         uint64_t dist[],
@@ -134,12 +145,12 @@ Status shortestPaths(Map* map,
     int *time;
     int prev_cp[cities_no];
     CHECK_RET(allocateStructures(A, cities_no, &dist, &queue, &is_in_queue, &time));
-    CHECK_RET(shortestPaths_(map, A, B, dist, queue, is_in_queue, time, visited, prev, d, w, fixing, false));
+    CHECK_RET(shortestPathsHelper(map, A, B, dist, queue, is_in_queue, time, visited, prev, d, w, fixing, false));
     for (size_t i = 0; i < cities_no; ++i) {
         prev_cp[i] = prev[i];
     }
     CHECK_RET(allocateStructures(A, cities_no, &dist, &queue, &is_in_queue, &time));
-    CHECK_RET(shortestPaths_(map, A, B, dist, queue, is_in_queue, time, visited, prev, d, w, fixing, true));
+    CHECK_RET(shortestPathsHelper(map, A, B, dist, queue, is_in_queue, time, visited, prev, d, w, fixing, true));
     int id1 = B, id2 = B;
     while (true) {
         if (id1 != id2) {
