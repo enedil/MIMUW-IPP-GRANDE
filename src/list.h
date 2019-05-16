@@ -1,3 +1,6 @@
+/** @file
+ * Interfejs dostarczajacy strukturę listy dwukierunkowej z dowiązaniami.
+ */
 #ifndef __LIST_H__
 #define __LIST_H__
 

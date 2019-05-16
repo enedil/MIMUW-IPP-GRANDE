@@ -39,8 +39,8 @@ set(SOURCE_FILES
     src/map_struct.h
     src/parser.c
     src/parser.h
-    #src/map_tests.c
-    #src/mmain.c
+    src/map_text_interface.c
+    src/map_text_interface.h
     )
 
 # Wskazujemy plik wykonywalny.

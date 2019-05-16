@@ -78,21 +78,23 @@ static bool cmpSemicolonTerminated(void *ptr1, void *ptr2) {
     return !((*str1 && *str1 != ';') || (*str2 && *str2 != ';'));
 }
 
-Status extractCityName(char *arg, char **out, size_t *size) {
-    if (arg == NULL) {
+Status extractCityName(char *arg, char **city) {
+    if (arg == NULL || city  == NULL) {
         return false;
     }
     char *p = strchr(arg, ';');
-    char city[p - arg];
-    memcpy(city, arg, p - arg);
-    if (!validCityName(city)) {
+    if (p == NULL) {
         return false;
     }
-    if (out == NULL) {
+    *city = calloc(p - arg + 1, sizeof(char));
+    if (*city == NULL) {
         return false;
     }
-    *out = p;
-    *size = p - arg;
+    memcpy(*city, arg, p - arg);
+    if (!validCityName(*city)) {
+        free(*city);
+        return false;
+    }
     return true;
 }
 
@@ -324,6 +326,3 @@ struct operation parse(char *line, size_t length) {
     validateArgs(&ret);
     return ret;
 }
-
-Status addRoadRepair(Map *map, char *city1, char *city2, unsigned length,
-                     int builtYear) {}

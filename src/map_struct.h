@@ -1,3 +1,6 @@
+/** @file
+ * Definicje struktur, które współtworzą strukturę mapy.
+ */
 #ifndef __MAP_STRUCT_H__
 #define __MAP_STRUCT_H__
 

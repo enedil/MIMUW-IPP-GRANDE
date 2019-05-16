@@ -243,6 +243,34 @@ bool repairRoad(Map *map, const char *city1, const char *city2,
     return true;
 }
 
+Status canInsertEdge(Map *map, char *city1, char *city2) {
+    CHECK_RET(map);
+    CHECK_RET(city1);
+    CHECK_RET(city2);
+    Entry e1 = getDictionary(&map->city_to_int, (void *)city1);
+    if (NOT_FOUND(e1)) {
+        return true;
+    }
+    Entry e2 = getDictionary(&map->city_to_int, (void *)city2);
+    if (NOT_FOUND(e2)) {
+        return true;
+    }
+    int id1 = decodeCityId(e1.val);
+    int id2 = decodeCityId(e2.val);
+    Entry edge12 = getDictionary((map->neighbours.arr)[id1], &id2);
+    Entry edge21 = getDictionary((map->neighbours.arr)[id2], &id1);
+    return (NOT_FOUND(edge12) || NOT_FOUND(edge21));
+}
+
+Status addRoadRepair(Map *map, char *city1, char *city2, unsigned length,
+                     int builtYear) {
+    if (canInsertEdge(map, city1, city2)) {
+        return addRoad(map, city1, city2, length, builtYear);
+    } else {
+        return repairRoad(map, city1, city2, builtYear);
+    }
+}
+
 bool appendPath(Dictionary *routesThrough, unsigned routeId, List *route,
                 int *prev, Node *after) {
     int current = after->value;

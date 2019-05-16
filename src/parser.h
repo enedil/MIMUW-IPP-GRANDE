@@ -1,3 +1,6 @@
+/** @file
+ * Interfejs klasy parsującej polecenia.
+ */
 #ifndef __PARSER_H__
 #define __PARSER_H__
 
@@ -27,7 +30,7 @@ struct operation {
  */
 struct operation parse(char *line, size_t length);
 
-/** @brief Wyciąga długość drogi z wskaźnika arg.
+/** @brief Wyciąga długość drogi ze wskaźnika arg.
  * Funkcja zapisuje pod wskaźnikiem @p length znalezioną długość drogi, o ile
  * początkowy fragment @p arg jest poprawną długością drogi, i poprawny fragment
  * kończy się bajtem zerowym, bądź średnikiem.
@@ -36,5 +39,24 @@ struct operation parse(char *line, size_t length);
  * @return Status powodzenia operacji.
  */
 Status extractRoadLength(char *arg, unsigned long long *length);
+
+/** @brief Wyciąga nazwę miasta ze wskaźnika arg.
+ * Zapisuje pod @p city1 wskaźnik na zaalokowany na stercie napis zawierający
+ * wyciągniętą nazwę miasta, o ile jest poprawna.
+ * @param[in] arg       - linia wejścia
+ * @param[out] city     - wskaźnik, pod którym znajdzie się nazwa miasta
+ * @return Status powodzenia operacji.
+ */
+Status extractCityName(char *arg, char **city);
+
+/** @brief Wyciąga rok budowy (naprawy) drogi ze wskaźnika arg.
+ * Funkcja zapisuje pod wskaźnikiem @p year znaleziony rok budowy drogi, o ile
+ * początkowy fragment @p arg jest poprawnym rokiem, i poprawny fragment
+ * kończy się bajtem zerowym, bądź średnikiem.
+ * @param[in] arg       - linia wejścia
+ * @param[out] length   - rok budowy (naprawy)
+ * @return Status powodzenia operacji.
+ */
+Status extractYear(char *arg, int *year);
 
 #endif /* __PARSER_H__ */
