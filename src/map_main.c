@@ -8,6 +8,15 @@
 
 #include "map.h"
 #include "parser.h"
+#include "map_text_interface.h"
+
+static size_t line_no = 0;
+
+static void error(bool condition) {
+    if (condition) {
+        fprintf(stderr, "%zu ERROR\n", line_no);
+    }
+}
 
 int main() {
     Map *m = newMap();
@@ -17,32 +26,31 @@ int main() {
 
     char *line = NULL;
     size_t line_len = 0;
-    while (getline(&line, &line_len, stdin) != -1) {
+    while (line_no++, getline(&line, &line_len, stdin) != -1) {
         if (errno == ENOMEM) {
             exit(0);
         }
         struct operation op = parse(line, strlen(line));
+        //printf("%d %s\n", op.op, op.arg);
         switch (op.op) {
-        case OP_ADD_ROAD:
-            printf("addRoad");
-            break;
-        case OP_ERROR:
-            printf("error");
-            break;
-        case OP_NEW_ROUTE:
-            printf("newRoute");
-            break;
-        case OP_NOOP:
-            printf("noop");
+        case OP_ROUTE_DESCRIPTION:
+
             break;
         case OP_REPAIR_ROAD:
-            printf("repairRoad");
+            error(!execRepairRoad(m, op.arg));
             break;
-        case OP_ROUTE_DESCRIPTION:
-            printf("routeDescription");
+        case OP_ADD_ROAD:
+            error(!execAddRoad(m, op.arg));
+            break;
+        case OP_NEW_ROUTE:
+
+            break;
+        case OP_ERROR:
+            error(true);
+            break;
+        case OP_NOOP:
             break;
         }
-        printf(" %s\n", op.arg);
     }
 
     deleteMap(m);
