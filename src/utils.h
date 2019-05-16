@@ -9,15 +9,15 @@
  * @param[in] str      - napis w stylu C do skrócenia.
  * @return Skrót stringa.
  */
-hash_t hashString(void* str);
+hash_t hashString(void *str);
 
-/** @brief Skraca stringa podanego na wejściu, czytając maksymalnie @p len bajtów.
- * Skraca stringa, tak aby można go było umieścić słowniku.
+/** @brief Skraca stringa podanego na wejściu, czytając maksymalnie @p len
+ * bajtów. Skraca stringa, tak aby można go było umieścić słowniku.
  * @param[in] str      - napis w stylu C do skrócenia.
  * @param[in] len      - maksymalna przeczytana długośc napisu.
  * @return Skrót stringa.
  */
-hash_t nHashString(void* str, size_t len);
+hash_t nHashString(void *str, size_t len);
 
 /** @brief Porównuje x i y jako stringi, o ile nie są równe NULL ani DELETED.
  * Jeżeli x lub y jest NULLem lub jest usunięty ze słownika (wartość DELETED),
@@ -29,7 +29,7 @@ hash_t nHashString(void* str, size_t len);
  * y nie jest NULLem, y nie jest usunięty, oraz x i y wskazują na takie same
  * napisy w stylu C. Wartość @p false w przeciwnym wypadku.
  */
-bool undereferencing_strcmp(void* x, void* y);
+bool undereferencing_strcmp(void *x, void *y);
 
 /** @brief Stwierdza, czy nazwa podana może być nazwą miasta.
  * Nazwa każdego miasta musi być dodatniej długości, a każdy jej znak musi być
@@ -38,7 +38,7 @@ bool undereferencing_strcmp(void* x, void* y);
  * @return Wartość @p true jeśli nazwa spełnia warunek, wartość @p false w
  * przeciwnym wypadku.
  */
-bool validCityName(const char* city);
+bool validCityName(const char *city);
 
 /** @brief Stwierdza, czy nazwa podana może być nazwą miasta.
  * Różni się od funkcji @ref validCityName faktem, że czyta maksymalnie @p n
@@ -48,7 +48,7 @@ bool validCityName(const char* city);
  * @return Wartość @p true jeśli nazwa spełnia warunek, wartość @p false w
  * przeciwnym wypadku.
  */
-bool nValidCityName(const char* city, size_t n);
+bool nValidCityName(const char *city, size_t n);
 
 /** @brief Stwierdza, czy droga o końcach w city1 i city2 spełnia założenia.
  * Droga może być poprawna, jeśli city1 i city2 mogą być poprawnymi miastami,
@@ -58,10 +58,10 @@ bool nValidCityName(const char* city, size_t n);
  * @return Wartość @p true jeśli nazwy spełniają warunek, wartość @p dalse w
  * przeciwnym wypadku.
  */
-bool possiblyValidRoad(const char* city1, const char* city2);
+bool possiblyValidRoad(const char *city1, const char *city2);
 
-void deleteDictionaryOfLists(Dictionary* d);
-hash_t hashEdge(void* key);
+void deleteDictionaryOfLists(Dictionary *d);
+hash_t hashEdge(void *key);
 
 /** @brief Porównuje (stwierdza równość bądź różność) krawędzi.
  * Krawędzie są równe, jeśli zbiory ich końców są równe. Nadaje się do
@@ -70,7 +70,7 @@ hash_t hashEdge(void* key);
  * @param e2          - krawędź druga
  * @return Wartość logiczna określająca równość @p e1 i @p e2.
  */
-bool cmpEdges(void* e1, void* e2);
+bool cmpEdges(void *e1, void *e2);
 
 /** @brief Znajduje długość liczby całkowitej w zapisie dziesiętnym.
  * @param x[in]       - liczba, której długości szukamy
@@ -78,9 +78,9 @@ bool cmpEdges(void* e1, void* e2);
  * liczby x.
  */
 size_t intLength(int64_t x);
-void* encodeEdgeAsPtr(int a, int b);
-void* encodeCityId(int id);
-int decodeCityId(void* p);
+void *encodeEdgeAsPtr(int a, int b);
+void *encodeCityId(int id);
+int decodeCityId(void *p);
 
 /** @brief Wybiera mniejszą z dwóch liczb.
  * @param a[in]          - pierwsza z liczb
@@ -93,25 +93,25 @@ int min(int a, int b);
  * @param p[in]          - liczba całkowita do skrócenia
  * @return
  */
-hash_t hashInt(void* p);
+hash_t hashInt(void *p);
 
 /** @brief Porównuje dwie liczby
  * @param p1[in]         - pierwsza z liczb do porównania
  * @param p2[in]         - druga z liczb do porównania
  * @return wartośc logiczna czy p1 jest równe p2
  */
-bool equalInt(void* p1, void* p2);
+bool equalInt(void *p1, void *p2);
 
 /** @brief Usuwa wektor list, zwalniając przeznaczoną na elementy pamięć.
  * @param vector[in,out] - wektor do opróżnienia
  */
-void deleteVectorOfLists(Vector* vector);
+void deleteVectorOfLists(Vector *vector);
 
 /** @brief Zamienia wartościami zawartości wskaźników @p x i @p y
  * @param x[in,out]       - wskaźnik na pierwszą z liczb
  * @param y[in,out]       - wskaźnik na drugą z licz
  */
-void swap(int* x, int* y);
+void swap(int *x, int *y);
 
 /** @brief Pusta funkcja.
  * Funkcja służy do wstawienia do słownika, w którym klucze lub wartości nie
@@ -119,6 +119,6 @@ void swap(int* x, int* y);
  * i nigdy nie są dereferencjonowane, bądź wskazują na zmienne globalne).
  * @param ptr[in]         - nieistotny wskaźnik
  */
-void empty(void* ptr);
+void empty(void *ptr);
 
 #endif /* __STRING_UTILS__ */

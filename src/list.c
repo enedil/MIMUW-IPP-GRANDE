@@ -1,9 +1,9 @@
-#include <stdlib.h>
-#include "dictionary.h"
 #include "list.h"
+#include "dictionary.h"
 #include "utils.h"
+#include <stdlib.h>
 
-List* newList(void) {
+List *newList(void) {
     List *n = calloc(1, sizeof(List));
     if (n == NULL) {
         return NULL;
@@ -23,7 +23,7 @@ List* newList(void) {
     return n;
 }
 
-Status listInsertAfter(List* list, Node* node, int elem) {
+Status listInsertAfter(List *list, Node *node, int elem) {
     if (list == NULL || node == NULL) {
         return false;
     }
@@ -49,7 +49,7 @@ Status listInsertAfter(List* list, Node* node, int elem) {
     return true;
 }
 
-Status listInsertBefore(List* list, Node* node, int elem) {
+Status listInsertBefore(List *list, Node *node, int elem) {
     if (list == NULL || node == NULL) {
         return false;
     }
@@ -59,7 +59,7 @@ Status listInsertBefore(List* list, Node* node, int elem) {
     return listInsertAfter(list, node->prev, elem);
 }
 
-void deleteList(List* list) {
+void deleteList(List *list) {
     if (list == NULL) {
         return;
     }
@@ -79,7 +79,7 @@ void deleteList(List* list) {
     free(begin);
 }
 
-void deleteListNode(List* list, Node* node) {
+void deleteListNode(List *list, Node *node) {
     if (list == NULL || node == NULL) {
         return;
     }
@@ -97,10 +97,10 @@ void deleteListNode(List* list, Node* node) {
     free(node);
 }
 
-List* copyList(List* list) {
-    List* ret = newList();
+List *copyList(List *list) {
+    List *ret = newList();
     CHECK_RET(ret);
-    for (Node* n = list->begin->next; n != list->end; n = n->next) {
+    for (Node *n = list->begin->next; n != list->end; n = n->next) {
         if (listInsertAfter(ret, ret->end, n->value) == false) {
             deleteList(ret);
             return NULL;
@@ -109,9 +109,9 @@ List* copyList(List* list) {
     return ret;
 }
 
-Status listInsertUnique(List* list, int el) {
+Status listInsertUnique(List *list, int el) {
     CHECK_RET(list);
-    for (Node* n = list->begin->next; n != list->end; n = n->next) {
+    for (Node *n = list->begin->next; n != list->end; n = n->next) {
         if (n->value == el) {
             return true;
         }
@@ -119,34 +119,34 @@ Status listInsertUnique(List* list, int el) {
     return listInsertAfter(list, list->end, el);
 }
 
-void listEmplaceNode(List* list, Node* after, Node* val) {
+void listEmplaceNode(List *list, Node *after, Node *val) {
     if (after == list->end) {
         after = after->prev;
     }
-    Node* x = after->next;
+    Node *x = after->next;
     after->next = val;
     val->next = x;
     val->prev = after;
     x->prev = val;
 }
 
-void insertListAfterElement(List* l, List* new, int el) {
-    for (Node* n = l->begin->next; n != l->end; n = n->next) {
+void insertListAfterElement(List *l, List *new, int el) {
+    for (Node *n = l->begin->next; n != l->end; n = n->next) {
         if (n->value == el) {
-            Node* x = n->next;
+            Node *x = n->next;
             n->next = new->begin->next;
             new->begin->next->prev = n;
             new->end->prev->next = x;
             x->prev = new->end->prev;
-            //free(new->begin);
+            // free(new->begin);
             return;
         }
     }
 }
 
-ssize_t listPos(List* l, int el) {
+ssize_t listPos(List *l, int el) {
     size_t ret = 0;
-    Node* n;
+    Node *n;
     for (n = l->begin->next; n != l->end; n = n->next) {
         if (n->value == el) {
             break;
@@ -159,17 +159,18 @@ ssize_t listPos(List* l, int el) {
     return ret;
 }
 
-void listReverse(List* l) {
-    for (Node *b = l->begin->next, *e = l->end->prev; b != e && b->next != e; b = b->next, e = e->prev) {
+void listReverse(List *l) {
+    for (Node *b = l->begin->next, *e = l->end->prev; b != e && b->next != e;
+         b = b->next, e = e->prev) {
         swap(&b->value, &e->value);
     }
 }
 
-Node* listFind(List* l, int el) {
+Node *listFind(List *l, int el) {
     if (l == NULL) {
         return NULL;
     }
-    for (Node* n = l->begin->next; n != l->end; n = n->next) {
+    for (Node *n = l->begin->next; n != l->end; n = n->next) {
         if (n->value == el) {
             return n;
         }

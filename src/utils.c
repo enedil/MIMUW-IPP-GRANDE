@@ -5,28 +5,26 @@
 #include "list.h"
 #include "utils.h"
 
-hash_t nHashString(void* str, size_t len) {
-    const char* c = str;
+hash_t nHashString(void *str, size_t len) {
+    const char *c = str;
     hash_t ret = 0;
     size_t x = sizeof(hash_t) * (len / sizeof(hash_t));
     for (size_t i = 0; i < x; i += sizeof(hash_t)) {
-        ret ^= *(const hash_t*)(c + i);
+        ret ^= *(const hash_t *)(c + i);
     }
     if (x < len) {
         uint8_t rest[sizeof(hash_t)] = {0};
         memcpy(rest, c, len - x);
-        ret ^= *(const hash_t*)rest;
+        ret ^= *(const hash_t *)rest;
     }
     return ret;
 }
 
-hash_t hashString(void* str) {
-    return nHashString(str, strlen((char*)str));
-}
+hash_t hashString(void *str) { return nHashString(str, strlen((char *)str)); }
 
-bool undereferencing_strcmp(void* x, void* y) {
-    const char* a = x;
-    const char* b = y;
+bool undereferencing_strcmp(void *x, void *y) {
+    const char *a = x;
+    const char *b = y;
     if (a == NULL || a == DELETED) {
         return false;
     }
@@ -36,8 +34,8 @@ bool undereferencing_strcmp(void* x, void* y) {
     return strcmp(a, b) == 0;
 }
 
-bool nValidCityName(const char* city, size_t n) {
-    char* name = (char*)city;
+bool nValidCityName(const char *city, size_t n) {
+    char *name = (char *)city;
     CHECK_RET(name);
     CHECK_RET(*name);
     while (*name && (size_t)(name - city) < n) {
@@ -49,11 +47,9 @@ bool nValidCityName(const char* city, size_t n) {
     return true;
 }
 
-bool validCityName(const char* city) {
-    return nValidCityName(city, SIZE_MAX);
-}
+bool validCityName(const char *city) { return nValidCityName(city, SIZE_MAX); }
 
-bool possiblyValidRoad(const char* city1, const char* city2) {
+bool possiblyValidRoad(const char *city1, const char *city2) {
     CHECK_RET(city1);
     CHECK_RET(city2);
     CHECK_RET(validCityName(city1));
@@ -62,19 +58,17 @@ bool possiblyValidRoad(const char* city1, const char* city2) {
     return true;
 }
 
-void deleteDictionaryOfLists(Dictionary* d) {
+void deleteDictionaryOfLists(Dictionary *d) {
     for (size_t i = 0; i < d->array_size; ++i) {
-        List* l = d->array[i].val;
+        List *l = d->array[i].val;
         deleteList(l);
     }
-   deleteDictionary(d);
+    deleteDictionary(d);
 }
 
-hash_t hashEdge(void* key) {
-    return (hash_t)key;
-}
+hash_t hashEdge(void *key) { return (hash_t)key; }
 
-bool cmpEdges(void* e1, void* e2) {
+bool cmpEdges(void *e1, void *e2) {
     if (e1 == NULL || e1 == DELETED || e2 == NULL || e2 == DELETED) {
         return false;
     }
@@ -83,19 +77,19 @@ bool cmpEdges(void* e1, void* e2) {
 
 size_t intLength(int64_t x) {
     // 3 == ceil(log10(256))
-    char b[sizeof(x)*3+1];
-    sprintf(b, "%"PRId64, x);
+    char b[sizeof(x) * 3 + 1];
+    sprintf(b, "%" PRId64, x);
     return strlen(b);
 }
 
-void* encodeCityId(int id) {
+void *encodeCityId(int id) {
     uint64_t ret = id;
     ret <<= 32;
     ret |= 3;
-    return (void*)ret;
+    return (void *)ret;
 }
 
-void* encodeEdgeAsPtr(int a, int b) {
+void *encodeEdgeAsPtr(int a, int b) {
     uint64_t ret = 0;
     if (a <= b) {
         ret |= a;
@@ -103,10 +97,10 @@ void* encodeEdgeAsPtr(int a, int b) {
     } else {
         return encodeEdgeAsPtr(b, a);
     }
-    return (void*)ret;
+    return (void *)ret;
 }
 
-int decodeCityId(void* p) {
+int decodeCityId(void *p) {
     uint64_t x = (uint64_t)p;
     return x >> 32;
 }
@@ -118,12 +112,12 @@ int min(int a, int b) {
     return b;
 }
 
-hash_t hashInt(void* p) {
+hash_t hashInt(void *p) {
     unsigned *c = p;
     return *c;
 }
 
-bool equalInt(void* p1, void* p2) {
+bool equalInt(void *p1, void *p2) {
     CHECK_RET(p1);
     CHECK_RET(p2);
     if (p1 == DELETED || p2 == DELETED) {
@@ -132,7 +126,7 @@ bool equalInt(void* p1, void* p2) {
     return 0 == memcmp(p1, p2, sizeof(int));
 }
 
-void deleteVectorOfLists(Vector* vector) {
+void deleteVectorOfLists(Vector *vector) {
     if (vector == NULL) {
         return;
     }
@@ -142,13 +136,13 @@ void deleteVectorOfLists(Vector* vector) {
     vectorDeleteFreeContent(vector);
 }
 
-void swap(int* x, int* y) {
+void swap(int *x, int *y) {
     int z = *x;
     *x = *y;
     *y = z;
 }
 
-void empty(void* v) {
-    int* x = v;
+void empty(void *v) {
+    int *x = v;
     x++;
 }

@@ -5,7 +5,7 @@
 #define DICTIONARY_INITIAL_SIZE 4
 #define INDEX(key) dictionary->hash((key)) % dictionary->array_size
 
-void deleteDictionary(Dictionary* dictionary) {
+void deleteDictionary(Dictionary *dictionary) {
     if (dictionary == NULL) {
         return;
     }
@@ -19,8 +19,9 @@ void deleteDictionary(Dictionary* dictionary) {
     dictionary->array = NULL;
 }
 
-Dictionary* newDictionary(hash_t (*hash)(void*), bool (*equal)(void*, void*), void (*free_key)(void*), void (*free_val)(void*)) {
-    Dictionary* dictionary = calloc(1, sizeof(Dictionary));
+Dictionary *newDictionary(hash_t (*hash)(void *), bool (*equal)(void *, void *),
+                          void (*free_key)(void *), void (*free_val)(void *)) {
+    Dictionary *dictionary = calloc(1, sizeof(Dictionary));
     if (dictionary == NULL) {
         return NULL;
     }
@@ -38,9 +39,9 @@ Dictionary* newDictionary(hash_t (*hash)(void*), bool (*equal)(void*, void*), vo
     return dictionary;
 }
 
-static Status rehashDictionary(Dictionary* dictionary, size_t new_size) {
+static Status rehashDictionary(Dictionary *dictionary, size_t new_size) {
     CHECK_RET(dictionary);
-    Entry* p = calloc(new_size, sizeof(Entry));
+    Entry *p = calloc(new_size, sizeof(Entry));
     if (p == NULL) {
         deleteDictionary(dictionary);
         return false;
@@ -65,17 +66,18 @@ static Status rehashDictionary(Dictionary* dictionary, size_t new_size) {
     return true;
 }
 
-Status insertDictionary(Dictionary* dictionary, void* key, void* val) {
+Status insertDictionary(Dictionary *dictionary, void *key, void *val) {
     CHECK_RET(dictionary);
     CHECK_RET(key);
     CHECK_RET(val);
     if (dictionary->size * 10 > dictionary->array_size * 9) {
-        CHECK_RET(rehashDictionary(dictionary, 2*dictionary->array_size));
+        CHECK_RET(rehashDictionary(dictionary, 2 * dictionary->array_size));
     } else if (dictionary->size + 1 >= dictionary->array_size) {
-        CHECK_RET(rehashDictionary(dictionary, 2*dictionary->array_size));
+        CHECK_RET(rehashDictionary(dictionary, 2 * dictionary->array_size));
     }
     hash_t index = INDEX(key);
-    while (dictionary->array[index].key != NULL && dictionary->array[index].key != DELETED) {
+    while (dictionary->array[index].key != NULL &&
+           dictionary->array[index].key != DELETED) {
         if (dictionary->equal(dictionary->array[index].key, key)) {
             dictionary->free_key(dictionary->array[index].key);
             dictionary->free_val(dictionary->array[index].val);
@@ -90,7 +92,7 @@ Status insertDictionary(Dictionary* dictionary, void* key, void* val) {
     return true;
 }
 
-Entry getDictionary(Dictionary* dictionary, void* key) {
+Entry getDictionary(Dictionary *dictionary, void *key) {
     if (dictionary == NULL || key == NULL) {
         return (const Entry){NULL, NULL};
     }
@@ -106,7 +108,7 @@ Entry getDictionary(Dictionary* dictionary, void* key) {
     return (const Entry){NULL, NULL};
 }
 
-void deleteFromDictionary(Dictionary* dictionary, void* key) {
+void deleteFromDictionary(Dictionary *dictionary, void *key) {
     if (dictionary == NULL || key == NULL) {
         return;
     }
@@ -124,14 +126,14 @@ void deleteFromDictionary(Dictionary* dictionary, void* key) {
     }
 }
 
-hash_t hsh(void* key) {
+hash_t hsh(void *key) {
     hash_t *x = key;
     return *x;
 }
 
-bool eq(void* a, void* b) {
+bool eq(void *a, void *b) {
     if ((a == 0) || (a == DELETED) || (b == 0) || (b == DELETED)) {
         return false;
     }
-    return *(int*)a == *(int*)b;
+    return *(int *)a == *(int *)b;
 }

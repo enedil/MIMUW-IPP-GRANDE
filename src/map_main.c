@@ -10,12 +10,12 @@
 #include "parser.h"
 
 int main() {
-    Map* m = newMap();
+    Map *m = newMap();
     if (m == NULL) {
         return 0;
     }
 
-    char* line = NULL;
+    char *line = NULL;
     size_t line_len = 0;
     while (getline(&line, &line_len, stdin) != -1) {
         if (errno == ENOMEM) {

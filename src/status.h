@@ -5,7 +5,8 @@
 
 typedef bool Status;
 
-#define CHECK_RET(x) \
-    if ((x) == false) return false;
+#define CHECK_RET(x)                                                           \
+    if ((x) == false)                                                          \
+        return false;
 
 #endif /* __STATUS_H__ */

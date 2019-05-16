@@ -6,8 +6,8 @@
 #include "status.h"
 
 /**
-  * Struktura opisująca tablicę dynamiczną (wektor).
-  */
+ * Struktura opisująca tablicę dynamiczną (wektor).
+ */
 typedef struct Vector {
     void **arr;
     size_t size;
@@ -17,17 +17,17 @@ typedef struct Vector {
 /** @brief Tworzy nowy wektor.
  * @return Wskaźnik na nowy, pusty wektor, lub NULL w przypadku błędu alokacji.
  */
-Vector* newVector(void);
+Vector *newVector(void);
 
 /** @brief Usuwa zawartość wektora.
  * @param vector[in,out]        - wektor, którego zawartość chcemy usunąć
  */
-void vectorDelete(Vector* vector);
+void vectorDelete(Vector *vector);
 
 /** @brief Usuwa wektor wraz z zawartością.
  * @param vector[in,out]        - wektor, którego zawartość chcemy usunąć
  */
-void vectorDeleteFreeContent(Vector* vector);
+void vectorDeleteFreeContent(Vector *vector);
 
 /** @brief Dodaje element na koniec wektora.
  * @param vector[in,out]        - wektor, który chcemy poszerzyć
@@ -39,10 +39,9 @@ Status vectorAppend(Vector *vector, void *element);
 
 /** @brief Usuwa ostatni element z wektora.
  * @param vector[in,out]        - wektor, z którego usuwamy ostatni element
- * @param free_[in]             - parametr określa, czy powinniśmy zwolnić pamięć
- * po zwalnianym elemencie przed wymazaniem z wektora.
+ * @param free_[in]             - parametr określa, czy powinniśmy zwolnić
+ * pamięć po zwalnianym elemencie przed wymazaniem z wektora.
  */
-void vectorRemoveLast(Vector* vector, bool free_);
-
+void vectorRemoveLast(Vector *vector, bool free_);
 
 #endif /* __VECTOR_H__ */

@@ -1,15 +1,15 @@
+#include "vector.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include "vector.h"
 
-Vector* newVector(void) {
-    Vector* n = malloc(sizeof(Vector));
+Vector *newVector(void) {
+    Vector *n = malloc(sizeof(Vector));
     if (n == NULL) {
         return NULL;
     }
 
     const size_t initial_capacity = 8;
-    n->arr = calloc(initial_capacity, sizeof(void*));
+    n->arr = calloc(initial_capacity, sizeof(void *));
     if (n->arr == NULL) {
         free(n);
         return NULL;
@@ -19,17 +19,17 @@ Vector* newVector(void) {
     return n;
 }
 
-void vectorDelete(Vector* vector) {
+void vectorDelete(Vector *vector) {
     if (vector == NULL) {
         return;
     }
     free(vector->arr);
-    vector->size = 0;   // avoid potential "use after free"
+    vector->size = 0; // avoid potential "use after free"
     vector->capacity = 0;
-//    free(vector);
+    //    free(vector);
 }
 
-void vectorDeleteFreeContent(Vector* vector) {
+void vectorDeleteFreeContent(Vector *vector) {
     if (vector == NULL) {
         return;
     }
@@ -50,7 +50,7 @@ Status vectorAppend(Vector *vector, void *element) {
         return true;
     }
     vector->capacity *= 2;
-    void *n = realloc(vector->arr, vector->capacity * sizeof(void*));
+    void *n = realloc(vector->arr, vector->capacity * sizeof(void *));
     if (n == NULL) {
         return false;
     }
@@ -58,7 +58,7 @@ Status vectorAppend(Vector *vector, void *element) {
     return vectorAppend(vector, element);
 }
 
-void vectorRemoveLast(Vector* vector, bool free_) {
+void vectorRemoveLast(Vector *vector, bool free_) {
     if (vector == NULL) {
         return;
     }

@@ -1,7 +1,8 @@
 /** @file
  * Interfejs klasy przechowującej mapę dróg krajowych
  *
- * @author Łukasz Kamiński <kamis@mimuw.edu.pl>, Marcin Peczarski <marpe@mimuw.edu.pl>
+ * @author Łukasz Kamiński <kamis@mimuw.edu.pl>, Marcin Peczarski
+ * <marpe@mimuw.edu.pl>
  * @copyright Uniwersytet Warszawski
  * @date 20.03.2019
  */
@@ -22,7 +23,7 @@ typedef struct Map Map;
  * @return Wskaźnik na utworzoną strukturę lub NULL, gdy nie udało się
  * zaalokować pamięci.
  */
-Map* newMap(void);
+Map *newMap(void);
 
 /** @brief Usuwa strukturę.
  * Usuwa strukturę wskazywaną przez @p map.
@@ -44,8 +45,8 @@ void deleteMap(Map *map);
  * wartość, obie podane nazwy miast są identyczne, odcinek drogi między tymi
  * miastami już istnieje lub nie udało się zaalokować pamięci.
  */
-bool addRoad(Map *map, const char *city1, const char *city2,
-             unsigned length, int builtYear);
+bool addRoad(Map *map, const char *city1, const char *city2, unsigned length,
+             int builtYear);
 
 /** @brief Modyfikuje rok ostatniego remontu odcinka drogi.
  * Dla odcinka drogi między dwoma miastami zmienia rok jego ostatniego remontu
@@ -79,8 +80,7 @@ bool repairRoad(Map *map, const char *city1, const char *city2, int repairYear);
  * jednoznacznie wyznaczyć drogi krajowej między podanymi miastami lub nie udało
  * się zaalokować pamięci.
  */
-bool newRoute(Map *map, unsigned routeId,
-              const char *city1, const char *city2);
+bool newRoute(Map *map, unsigned routeId, const char *city1, const char *city2);
 
 /** @brief Wydłuża drogę krajową do podanego miasta.
  * Dodaje do drogi krajowej nowe odcinki dróg do podanego miasta w taki sposób,
@@ -135,6 +135,6 @@ bool removeRoad(Map *map, const char *city1, const char *city2);
  * @param[in] routeId    – numer drogi krajowej.
  * @return Wskaźnik na napis lub NULL, gdy nie udało się zaalokować pamięci.
  */
-char const* getRouteDescription(Map *map, unsigned routeId);
+char const *getRouteDescription(Map *map, unsigned routeId);
 
 #endif /* __MAP_H__ */

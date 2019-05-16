@@ -1,8 +1,7 @@
+#include <errno.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include <errno.h>
-
 
 #include "dictionary.h"
 #include "map_struct.h"
@@ -14,7 +13,7 @@
  * @param data_len[in]      - długość łańcucha znakóœ
  * @return
  */
-static bool validNumeral(char* data, size_t data_len) {
+static bool validNumeral(char *data, size_t data_len) {
     if (data_len == 0) {
         return false;
     }
@@ -38,7 +37,7 @@ static bool validNumeral(char* data, size_t data_len) {
  * @param c                 - znak do zliczenia
  * @return Liczba wystąpień znaku @p c w stringu @p str.
  */
-static size_t countChar(char* str, char c) {
+static size_t countChar(char *str, char c) {
     size_t count = 0;
     while (*str) {
         if (*str == c) {
@@ -49,12 +48,13 @@ static size_t countChar(char* str, char c) {
     return count;
 }
 
-/** @brief Liczy skrót (hasz) stringa zakończonego bajtem zerowym, bądź średnikiem.
+/** @brief Liczy skrót (hasz) stringa zakończonego bajtem zerowym, bądź
+ * średnikiem.
  * @param ptr                 - string
  * @return wartość skrótu
  */
-static hash_t hashSemicolonTerminated(void* ptr) {
-    uint8_t* str = ptr;
+static hash_t hashSemicolonTerminated(void *ptr) {
+    uint8_t *str = ptr;
     hash_t ret = 1;
     while (*str && *str != ';') {
         ret *= *str + 1;
@@ -63,11 +63,11 @@ static hash_t hashSemicolonTerminated(void* ptr) {
     return ret;
 }
 
-static bool cmpSemicolonTerminated(void* ptr1, void* ptr2) {
+static bool cmpSemicolonTerminated(void *ptr1, void *ptr2) {
     if (ptr1 == DELETED || ptr2 == DELETED) {
         return false;
     }
-    uint8_t* str1 = ptr1, * str2 = ptr2;
+    uint8_t *str1 = ptr1, *str2 = ptr2;
     while (*str1 && *str1 != ';' && *str2 && *str2 != ';') {
         if (*str1 != *str2) {
             return false;
@@ -78,11 +78,11 @@ static bool cmpSemicolonTerminated(void* ptr1, void* ptr2) {
     return !((*str1 && *str1 != ';') || (*str2 && *str2 != ';'));
 }
 
-Status extractCityName(char* arg, char** out, size_t* size) {
+Status extractCityName(char *arg, char **out, size_t *size) {
     if (arg == NULL) {
         return false;
     }
-    char* p = strchr(arg, ';');
+    char *p = strchr(arg, ';');
     char city[p - arg];
     memcpy(city, arg, p - arg);
     if (!validCityName(city)) {
@@ -96,21 +96,22 @@ Status extractCityName(char* arg, char** out, size_t* size) {
     return true;
 }
 
-Status extractRoadLength(char* arg, unsigned long long* length) {
+Status extractRoadLength(char *arg, unsigned long long *length) {
     if (arg == NULL || length == NULL) {
         return false;
     }
-    char* out;
+    char *out;
     errno = 0;
     *length = strtoull(arg, &out, 10);
-    return (*length > 0) && (*length < UINT32_MAX) && (errno == 0) && (*out == 0 || *out == ';');
+    return (*length > 0) && (*length < UINT32_MAX) && (errno == 0) &&
+           (*out == 0 || *out == ';');
 }
 
-Status extractYear(char* arg, int* year) {
+Status extractYear(char *arg, int *year) {
     if (arg == NULL || year == NULL) {
         return false;
     }
-    char* out;
+    char *out;
     errno = 0;
     long x = 1;
     x = strtol(arg, &out, 10);
@@ -124,7 +125,7 @@ Status extractYear(char* arg, int* year) {
     return true;
 }
 
-static bool vNewRoute(char* arg) {
+static bool vNewRoute(char *arg) {
     bool ret = false;
     if (*arg == 0 || *arg == ';') {
         return false;
@@ -134,7 +135,7 @@ static bool vNewRoute(char* arg) {
         return false;
     }
 
-    char* ptr = arg;
+    char *ptr = arg;
 
     int routeId;
     if (!extractYear(ptr, &routeId)) {
@@ -143,12 +144,13 @@ static bool vNewRoute(char* arg) {
     if (routeId >= ROUTE_MAX) {
         return false;
     }
-    ptr = strchr(ptr+1, ';') + 1;
-    Dictionary* detect_duplicates = newDictionary(hashSemicolonTerminated, cmpSemicolonTerminated, empty, empty);
+    ptr = strchr(ptr + 1, ';') + 1;
+    Dictionary *detect_duplicates = newDictionary(
+        hashSemicolonTerminated, cmpSemicolonTerminated, empty, empty);
     if (detect_duplicates == NULL) {
         return false;
     }
-    for (size_t i = 0; i < semicolon_count/3; ++i) {
+    for (size_t i = 0; i < semicolon_count / 3; ++i) {
         Entry e = getDictionary(detect_duplicates, ptr);
         // If found, the route is invalid. If not, try to insert element.
         if (!NOT_FOUND(e) || !insertDictionary(detect_duplicates, ptr, ptr)) {
@@ -183,11 +185,11 @@ CLEANUP:
     return ret;
 }
 
-static bool vAddRoad(char* arg) {
+static bool vAddRoad(char *arg) {
     const int max_semicolons = 3;
-    char* semicolons[max_semicolons];
+    char *semicolons[max_semicolons];
     int semicolon_count = 0;
-    char* p = arg;
+    char *p = arg;
     while (*p) {
         if (*p == ';') {
             semicolons[semicolon_count] = p;
@@ -199,7 +201,7 @@ static bool vAddRoad(char* arg) {
     if (semicolon_count != max_semicolons) {
         return false;
     }
-    if (!possiblyValidRoad(arg, 1+semicolons[0])) {
+    if (!possiblyValidRoad(arg, 1 + semicolons[0])) {
         return false;
     }
 
@@ -217,21 +219,22 @@ static bool vAddRoad(char* arg) {
     return true;
 }
 
-/** @brief Stwierdza, czy linia wejścia jest składniowo poprawna, jako operacja newRoute.
- * W szczególności, sprawdza czy wszyskie zmienne liczbowe mieszczą się w odpowiednich
- * zakresach, a także czy żadne miasto nie występuje na liście więcej niż raz.
+/** @brief Stwierdza, czy linia wejścia jest składniowo poprawna, jako operacja
+ * newRoute. W szczególności, sprawdza czy wszyskie zmienne liczbowe mieszczą
+ * się w odpowiednich zakresach, a także czy żadne miasto nie występuje na
+ * liście więcej niż raz.
  * @param[in] arg    - linia wejścia
- * @return Wartość @p false w przypadku błędu alokacji, a przeciwnym razie wartość
- * logiczna poprawności linii wejścia.
+ * @return Wartość @p false w przypadku błędu alokacji, a przeciwnym razie
+ * wartość logiczna poprawności linii wejścia.
  */
-static bool vRepairRoad(char* arg) {
-    char* first_semicolon = strchr(arg, ';');
+static bool vRepairRoad(char *arg) {
+    char *first_semicolon = strchr(arg, ';');
     if (first_semicolon == NULL) {
         return false;
     }
     char c1[first_semicolon - arg];
     strncpy(c1, arg, first_semicolon - arg);
-    char* second_semicolon = strchr(first_semicolon + 1, ';');
+    char *second_semicolon = strchr(first_semicolon + 1, ';');
     if (second_semicolon == NULL) {
         return false;
     }
@@ -241,15 +244,15 @@ static bool vRepairRoad(char* arg) {
     if (!possiblyValidRoad(c1, c2)) {
         return false;
     }
-    char* third_semicolon = strchr(second_semicolon + 1, ';');
+    char *third_semicolon = strchr(second_semicolon + 1, ';');
     if (third_semicolon == NULL) {
         return false;
     }
     int year;
-    return extractYear(third_semicolon+1, &year);
+    return extractYear(third_semicolon + 1, &year);
 }
 
-static bool vRouteDescription(char* arg) {
+static bool vRouteDescription(char *arg) {
     if (strlen(arg) > 4) {
         // can't be a number less than 1000
         return false;
@@ -258,9 +261,9 @@ static bool vRouteDescription(char* arg) {
     return x > 0 && x < 1000;
 }
 
-static void validateArgs(struct operation* ret) {
+static void validateArgs(struct operation *ret) {
     bool valid = true;
-    switch(ret->op) {
+    switch (ret->op) {
     case OP_ROUTE_DESCRIPTION:
         valid = vRouteDescription(ret->arg);
         break;
@@ -282,13 +285,13 @@ static void validateArgs(struct operation* ret) {
     }
 }
 
-struct operation parse(char* line, size_t length) {
+struct operation parse(char *line, size_t length) {
     struct operation ret = {OP_ERROR, NULL};
     if (line == NULL) {
         return ret;
     }
-    if (line[length-1] == '\n') {
-        line[length-1] = 0;
+    if (line[length - 1] == '\n') {
+        line[length - 1] = 0;
         length--;
     }
     if (length == 0) {
@@ -299,7 +302,7 @@ struct operation parse(char* line, size_t length) {
         ret.op = OP_NOOP;
         return ret;
     }
-    char* first_semicolon = strchr(line, ';');
+    char *first_semicolon = strchr(line, ';');
     if (first_semicolon == NULL) {
         return ret;
     }
@@ -322,7 +325,5 @@ struct operation parse(char* line, size_t length) {
     return ret;
 }
 
-Status addRoadRepair(Map* map, char* city1, char* city2,
-                     unsigned length, int builtYear) {
-
-}
+Status addRoadRepair(Map *map, char *city1, char *city2, unsigned length,
+                     int builtYear) {}
