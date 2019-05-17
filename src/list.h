@@ -61,12 +61,12 @@ void deleteListNode(List *list, Node *node);
 
 /** @brief Usuwa listę.
  * Usuwa listę, dealokując całą używaną pamięć.
- * @param list[in,out]         - lista do usunięcia.
+ * @param[in,out] list         - lista do usunięcia.
  */
 void deleteList(List *list);
 
 /** @brief Tworzy kopię listy.
- * @param list[in]             - lista, której kopię tworzymy
+ * @param[in] list             - lista, której kopię tworzymy
  * @return wskaźnik na nową listę, lub NULL w przypadku błędu alokacji pamięci
  */
 List *copyList(List *list);
@@ -74,9 +74,9 @@ List *copyList(List *list);
 /** @brief Wstaw element opisany przez wskaźnik @p val po węźle @p after.
  * Operacja nie dokkonuje alokacji pamięci. Wynik nie jest określony, jeśli @p
  * after nie znajduje się na liście.
- * @param list[in,out]         - lista, na której znajduje się @p after
- * @param after[in,out]        - element, po krórym wstawiamy @p val
- * @param val[in,out]          - element wstawiany
+ * @param[in,out] list         - lista, na której znajduje się @p after
+ * @param[in,out] after        - element, po krórym wstawiamy @p val
+ * @param[in,out] val          - element wstawiany
  */
 void listEmplaceNode(List *list, Node *after, Node *val);
 
@@ -91,23 +91,29 @@ void insertListAfterElement(List *l, List *new, int el);
 
 /** @brief Znajduje pozycję pierwszego elementu @p el w liście @p l.
  * Jeśli nie znaleziono elementu, zwraca -1.
- * @param l[in]                - lista, którą przeszukujemy
- * @param el[in]               - szukany element
+ * @param[in] l                - lista, którą przeszukujemy
+ * @param[in] el               - szukany element
  * @return
  */
 ssize_t listPos(List *l, int el);
 
 /** @brief Odwraca listę w miejscu.
- * @param l[in,out]            - lista do odwrócenia
+ * @param[in,out] l            - lista do odwrócenia
  */
 void listReverse(List *l);
 
 /** @brief Znajduje pierwszy węzeł o wartości @p el w liście @p l.
- * @param l[in]                - lista, którą przeszukujemy
- * @param el[in]               - szukany element
+ * @param[in] l                - lista, którą przeszukujemy
+ * @param[in] el               - szukany element
  * @return NULL jeśli l == NULL lub element o wartości @p el nie istnieje na
  * liście.
  */
 Node *listFind(List *l, int el);
+
+/** @brief Sprawdza, czy lista jest pusta.
+ * @param[in] l                - lista do sprawdzenia
+ * @return @p true jeśli lista jest pusta, @p false gdy nie jest.
+ */
+bool isEmptyList(List* l);
 
 #endif /* __LIST_H__ */

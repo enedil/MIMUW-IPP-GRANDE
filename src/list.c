@@ -177,3 +177,10 @@ Node *listFind(List *l, int el) {
     }
     return NULL;
 }
+
+bool isEmptyList(List* l) {
+    if (!l->begin) {
+        return true;
+    }
+    return l->begin->next == l->end;
+}

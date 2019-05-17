@@ -6,7 +6,6 @@
 
 #include "dictionary.h"
 #include "list.h"
-#include "map.h"
 #include "vector.h"
 
 #define ROUTE_MAX 1000

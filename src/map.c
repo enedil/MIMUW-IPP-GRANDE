@@ -7,6 +7,7 @@
 #include "map_struct.h"
 #include "shortest_paths.h"
 #include "utils.h"
+#include "map.h"
 
 #define INFINITY UINT64_MAX
 
@@ -116,6 +117,9 @@ static bool areRoadsConsistent(Road *r1, Road *r2) {
 Status addCity(Map *map, const char *city) {
     CHECK_RET(map);
     CHECK_RET(city);
+    if (!NOT_FOUND(getDictionary(&map->city_to_int, (void *)city))) {
+        return true;
+    }
 
     size_t len = strlen(city);
     char *c = malloc(len + 1);
@@ -393,7 +397,7 @@ Road getRoad(Map *map, int id1, int id2) {
     return *(Road *)edge12.val;
 }
 
-size_t getRouteDescriptionLength(Map *map, unsigned routeId) {
+static size_t getRouteDescriptionLength(Map *map, unsigned routeId) {
     Route *route = &map->routes[routeId];
     size_t string_length = intLength(routeId) + 1;
     Node *node = route->cities.begin->next;
@@ -599,7 +603,7 @@ FREE:
     return ret;
 }
 
-void vectorDeleteFreeListContent(Vector *vector, bool x) {
+static void vectorDeleteFreeListContent(Vector *vector, bool x) {
     if (vector == NULL) {
         return;
     }

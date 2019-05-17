@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 #include <errno.h>
 #include <stdbool.h>
 #include <stdlib.h>
@@ -82,10 +83,7 @@ Status extractCityName(char *arg, char **city) {
     if (arg == NULL || city  == NULL) {
         return false;
     }
-    char *p = strchr(arg, ';');
-    if (p == NULL) {
-        return false;
-    }
+    char *p = strchrnul(arg, ';');
     *city = calloc(p - arg + 1, sizeof(char));
     if (*city == NULL) {
         return false;
@@ -105,7 +103,7 @@ Status extractRoadLength(char *arg, unsigned long long *length) {
     char *out;
     errno = 0;
     *length = strtoull(arg, &out, 10);
-    return (*length > 0) && (*length < UINT32_MAX) && (errno == 0) &&
+    return (*length > 0) && (*length <= UINT32_MAX) && (errno == 0) &&
            (*out == 0 || *out == ';');
 }
 
@@ -132,12 +130,8 @@ Status extractRouteId(char* arg, unsigned *routeId) {
         return false;
     }
     char* out;
-    unsigned long x;
-    x = strtoul(arg, &out, 10);
-    if (x == 0 || errno != 0 || (*out != 0 && *out != ';')) {
-        return false;
-    }
-    if (x >= ROUTE_MAX) {
+    unsigned long x = strtoul(arg, &out, 10);
+    if (errno != 0 || (*out != 0 && *out != ';')) {
         return false;
     }
     *routeId = x;
@@ -251,32 +245,29 @@ static bool vRepairRoad(char *arg) {
     if (first_semicolon == NULL) {
         return false;
     }
-    char c1[first_semicolon - arg];
+    char c1[first_semicolon - arg + 1];
+    memset(c1, 0, first_semicolon - arg + 1);
     strncpy(c1, arg, first_semicolon - arg);
     char *second_semicolon = strchr(first_semicolon + 1, ';');
     if (second_semicolon == NULL) {
         return false;
     }
-    char c2[second_semicolon - first_semicolon];
+    char c2[second_semicolon - first_semicolon + 1];
+    memset(c2, 0, second_semicolon - first_semicolon + 1);
     strncpy(c2, first_semicolon + 1, second_semicolon - first_semicolon - 1);
 
     if (!possiblyValidRoad(c1, c2)) {
         return false;
     }
-    char *third_semicolon = strchr(second_semicolon + 1, ';');
-    if (third_semicolon == NULL) {
-        return false;
-    }
     int year;
-    return extractYear(third_semicolon + 1, &year);
+    return extractYear(second_semicolon + 1, &year) != 0;
 }
 
 static bool vRouteDescription(char *arg) {
-    if (strlen(arg) > 4) {
-        // can't be a number less than 1000
+    unsigned id;
+    if (*arg < '0' || *arg > '9') {
         return false;
     }
-    unsigned id;
     return extractRouteId(arg, &id);
 }
 
