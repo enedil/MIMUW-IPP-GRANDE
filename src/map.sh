@@ -1,38 +1,24 @@
 #!/usr/bin/env bash
 
-function usage() {
+usage() {
     >&2 echo "Usage:"
     >&2 echo "    $0 getDescription_outputs.txt [routeId1 [routeId2 [...]]]"
     >&2 echo "every routeId should be between 1 and 999 (inclusive)"
     exit 1
 }
 
-function getlength() {
-    ruby -pe '$_=($_.split(";").select.each_with_index {|_,i| i%3 == 2}).inject(0) {|sum, x| sum + x.to_i}' <<< "$1"
+getlength() {
+    ruby -pe 'l=$_.split(";");$_="#{l[0]};#{(l.select.each_with_index{|_,i|i%3==2}.map(&:to_i).inject:+)}\n"' 
 }
 
-if (( $# < 2 ))
-then 
+if (( $# < 2 )); then 
     usage
 fi
 # check if all arguments are valid
 for arg in "${@:2}"; do
-    if ! [[ "$arg" =~ ^[0-9]+$ ]]; then
-        usage
-    fi
-    if (( "$arg" > 1000 )) || (( "$arg" == 0 )); then
+    if ! [[ "$arg" =~ ^[0-9]+$ ]] || (( "$arg" > 1000 )) || (( "$arg" == 0 )); then
         usage
     fi
 done
-
-output_file="$1"
-
-for arg in "${@:2}"; do
-    out=$(grep "^$arg;" "$output_file")
-    if [[ ! -z "$out"  ]]
-    then
-        echo -n "$arg;"
-        getlength "$out"
-        echo
-    fi
-done
+regex=$(sed -E "s/\s+/;\|\^/g" <<< "${@:2}")
+egrep '('"$regex"')' "$1" | getlength
