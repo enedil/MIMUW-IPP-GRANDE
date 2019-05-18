@@ -20,5 +20,6 @@ for arg in "${@:2}"; do
         usage
     fi
 done
-regex=$(sed -E "s/\s+/;\|\^/g" <<< "${@:2}")
-egrep '('"$regex"')' "$1" | getlength
+for arg in "${@:2}"; do
+    egrep "^$arg;" "$1" | getlength
+done
