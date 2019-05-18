@@ -79,21 +79,14 @@ static bool cmpSemicolonTerminated(void *ptr1, void *ptr2) {
     return !((*str1 && *str1 != ';') || (*str2 && *str2 != ';'));
 }
 
-Status extractCityName(char *arg, char **city) {
+Status extractCityName(char *arg, char *city) {
     if (arg == NULL || city  == NULL) {
         return false;
     }
     char *p = strchrnul(arg, ';');
-    *city = calloc(p - arg + 1, sizeof(char));
-    if (*city == NULL) {
-        return false;
-    }
-    memcpy(*city, arg, p - arg);
-    if (!validCityName(*city)) {
-        free(*city);
-        return false;
-    }
-    return true;
+    strncpy(city, arg, p - arg);
+    city[p - arg] = 0;
+    return validCityName(city);
 }
 
 Status extractRoadLength(char *arg, unsigned long long *length) {

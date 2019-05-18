@@ -25,7 +25,7 @@ struct operation {
 
 /** @brief Parsuje linię wejścia, zwracając typ operacji oraz skojarzony
  * argument.
- * @param line[in]      - linia wejścia
+ * @param[in] line      - linia wejścia
  * @return struktura reprezentująca status parsowania linii
  */
 struct operation parse(char *line, size_t length);
@@ -47,7 +47,7 @@ Status extractRoadLength(char *arg, unsigned long long *length);
  * @param[out] city     - wskaźnik, pod którym znajdzie się nazwa miasta
  * @return Status powodzenia operacji.
  */
-Status extractCityName(char *arg, char **city);
+Status extractCityName(char *arg, char *city);
 
 /** @brief Wyciąga rok budowy (naprawy) drogi ze wskaźnika arg.
  * Funkcja zapisuje pod wskaźnikiem @p year znaleziony rok budowy drogi, o ile

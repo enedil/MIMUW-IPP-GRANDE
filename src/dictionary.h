@@ -9,6 +9,8 @@
 
 #include "status.h"
 
+/*! @def d
+ */
 #define DELETED ((void *)1)
 
 #define NOT_FOUND(e) ((e).key == NULL || (e).key == DELETED)
@@ -19,15 +21,15 @@ typedef uint64_t hash_t;
  * Struktura reprezentująca element słownika.
  */
 typedef struct Entry {
-    void *key;
-    void *val;
+    void *key;                      /// klucz, za pomocą którego szukamy wartości
+    void *val;                      /// skojarzona wartość
 } Entry;
 
 /**
  * Struktura reprezentująca słownik.
  */
 typedef struct Dictionary {
-    hash_t (*hash)(void *);
+    hash_t (*hash)(void *);         ///
     bool (*equal)(void *, void *);
     Entry *array;
     size_t array_size;

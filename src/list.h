@@ -54,8 +54,8 @@ Status listInsertBefore(List *list, Node *node, int elem);
 
 /** @brief Usuwa węzeł z listy.
  * Jeśli węzeł nie znajduje się na liście, operacja jest nieokreślona.
- * @param list[in,out]         - lista, z której usuwamy element
- * @param node[in]             - wskaźnik na węzeł, który usuwamy z listy
+ * @param[in,out] list         - lista, z której usuwamy element
+ * @param[in] node             - wskaźnik na węzeł, który usuwamy z listy
  */
 void deleteListNode(List *list, Node *node);
 
@@ -80,12 +80,12 @@ List *copyList(List *list);
  */
 void listEmplaceNode(List *list, Node *after, Node *val);
 
-/** @brief Wstawia listę @p new do listy @l po elemencie o wartości @p el. Jeśli
- * @p el znajduje się na liście @p new, inwaliduje kolejne operacje na liście
+/** @brief Wstawia listę @p new do listy @p l po elemencie o wartości @p el.
+ * Jeśli @p el znajduje się na liście @p new, inwaliduje kolejne operacje na liście
  * @p new (i przejmuje obowiązek zajmowania się zwalnianiem pamięci).
- * @param l[in,out]            - lista, którą będziemy poszerzać
- * @param new[in,out]          - lista, którą będziemy wstawiać
- * @param el[in]               - element, po którym chcemy wstawić listę @p new
+ * @param[in,out] l            - lista, którą będziemy poszerzać
+ * @param[in,out] new          - lista, którą będziemy wstawiać
+ * @param[in] el               - element, po którym chcemy wstawić listę @p new
  */
 void insertListAfterElement(List *l, List *new, int el);
 

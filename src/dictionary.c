@@ -3,7 +3,8 @@
 #include "dictionary.h"
 
 #define DICTIONARY_INITIAL_SIZE 4
-#define INDEX(key) dictionary->hash((key)) % dictionary->array_size
+#define INDEX(key) dictionary->hash((key)) & (dictionary->array_size - 1)
+#define NEXT_INDEX(index) {if (++(index) == dictionary->array_size) {(index) = 0;}}
 
 void deleteDictionary(Dictionary *dictionary) {
     if (dictionary == NULL) {
@@ -84,7 +85,7 @@ Status insertDictionary(Dictionary *dictionary, void *key, void *val) {
             dictionary->size--;
             break;
         }
-        index = (index + 1) % dictionary->array_size;
+        NEXT_INDEX(index);
     }
     dictionary->array[index].key = key;
     dictionary->array[index].val = val;
@@ -103,7 +104,7 @@ Entry getDictionary(Dictionary *dictionary, void *key) {
         if (dictionary->equal(dictionary->array[index].key, key)) {
             return dictionary->array[index];
         }
-        index = (index + 1) % dictionary->array_size;
+        NEXT_INDEX(index);
     }
     return (const Entry){NULL, NULL};
 }
@@ -122,18 +123,6 @@ void deleteFromDictionary(Dictionary *dictionary, void *key) {
             dictionary->size--;
             return;
         }
-        index = (index + 1) % dictionary->array_size;
+        NEXT_INDEX(index);
     }
-}
-
-hash_t hsh(void *key) {
-    hash_t *x = key;
-    return *x;
-}
-
-bool eq(void *a, void *b) {
-    if ((a == 0) || (a == DELETED) || (b == 0) || (b == DELETED)) {
-        return false;
-    }
-    return *(int *)a == *(int *)b;
 }

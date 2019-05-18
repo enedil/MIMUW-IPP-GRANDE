@@ -4,10 +4,14 @@
 
 Status execAddRoad(Map* map, char* arg) {
     Status ret = false;
-    char *city1 = NULL, *city2 = NULL;
-    CHECK_RET(extractCityName(arg, &city1));
+    size_t len = strlen(arg)+1;
+    char city1[len];
+    char city2[len];
+    memset(city1, 0, len);
+    memset(city2, 0, len);
+    CHECK_RET(extractCityName(arg, city1));
     arg = strchr(arg, ';') + 1;
-    if (!extractCityName(arg, &city2)) {
+    if (!extractCityName(arg, city2)) {
         goto CLEANUP;
     }
     arg = strchr(arg, ';') + 1;
@@ -23,17 +27,19 @@ Status execAddRoad(Map* map, char* arg) {
 
     ret = addRoad(map, city1, city2, (unsigned)length, year);
 CLEANUP:
-    free(city1);
-    free(city2);
     return ret;
 }
 
 Status execRepairRoad(Map* map, char* arg) {
     Status ret = false;
-    char *city1 = NULL, *city2 = NULL;
-    CHECK_RET(extractCityName(arg, &city1));
+    size_t len = strlen(arg)+1;
+    char city1[len];
+    char city2[len];
+    memset(city1, 0, len);
+    memset(city2, 0, len);
+    CHECK_RET(extractCityName(arg, city1));
     arg = strchr(arg, ';') + 1;
-    if (!extractCityName(arg, &city2)) {
+    if (!extractCityName(arg, city2)) {
         goto CLEANUP;
     }
     arg = strchr(arg, ';') + 1;
@@ -43,8 +49,6 @@ Status execRepairRoad(Map* map, char* arg) {
     }
     ret = repairRoad(map, city1, city2, year);
 CLEANUP:
-    free(city1);
-    free(city2);
     return ret;
 }
 
@@ -93,34 +97,31 @@ Status execNewRoute(Map* map, char* arg) {
     if (!isEmptyList(&map->routes[routeId].cities)) {
         return false;
     }
+    size_t len = strlen(arg) + 1;
+    char xx[len];
+    char yy[len];
+    memset(xx, 0, len);
+    memset(yy, 0, len);
 
     char* prev = nextNthSemicolon(arg, 1);
     char* ptr = nextNthSemicolon(prev, 3);
 
     // check if every edge can be inserted
     while (prev && ptr) {
-        char *x = NULL, *y = NULL;
-        if (!extractCityName(prev, &x) || !extractCityName(ptr, &y)) {
-            free(x);
-            free(y);
+        if (!extractCityName(prev, xx) || !extractCityName(ptr, yy)) {
             return false;
         }
-        Road r = getRoadFromName(map, x, y);
+        Road r = getRoadFromName(map, xx, yy);
         if (r.length != 0) {
-
             unsigned long long len;
             int year;
             if (!extractRoadLength(nextNthSemicolon(prev, 1), &len)
                     || len != r.length
                     || !extractYear(nextNthSemicolon(prev, 2), &year)
                     || year < r.builtYear) {
-                free(x);
-                free(y);
                 return false;
             }
         }
-        free(x);
-        free(y);
         prev = nextNthSemicolon(prev, 3);
         ptr = nextNthSemicolon(ptr, 3);
     }
@@ -131,38 +132,29 @@ Status execNewRoute(Map* map, char* arg) {
     free(l);
 
     prev = nextNthSemicolon(arg, 1);
-    char* x;
-    if (!extractCityName(prev, &x)) {
-        free(x);
+    if (!extractCityName(prev, xx)) {
         return false;
     }
-    if (!addCity(map, x)) {
-        free(x);
+    if (!addCity(map, xx)) {
         return false;
     }
-    Entry e = getDictionary(&map->city_to_int, x);
+    Entry e = getDictionary(&map->city_to_int, xx);
     int id = decodeCityId(e.val);
     listInsertAfter(&map->routes[routeId].cities, map->routes[routeId].cities.begin, id);
-    free(x);
     ptr = nextNthSemicolon(prev, 3);
     while (prev && ptr) {
-        char *x = NULL, *y = NULL;
-        if (!extractCityName(prev, &x) || !extractCityName(ptr, &y)) {
-            free(x);
-            free(y);
+        if (!extractCityName(prev, xx) || !extractCityName(ptr, yy)) {
             return false;
         }
         unsigned long long length;
         int year;
         if (extractRoadLength(nextNthSemicolon(prev, 1), &length)
                 && extractYear(nextNthSemicolon(prev, 2), &year)) {
-            if (!addRoadRepair(map, x, y, (unsigned)length, year)) {
-                free(x);
-                free(y);
+            if (!addRoadRepair(map, xx, yy, (unsigned)length, year)) {
                 return false;
             }
         }
-        Road r = getRoadFromName(map, x, y);
+        Road r = getRoadFromName(map, xx, yy);
         if (!listInsertAfter(&map->routes[routeId].cities, map->routes[routeId].cities.end, r.end)) {
             return false;
         }
@@ -175,8 +167,6 @@ Status execNewRoute(Map* map, char* arg) {
             return false;
         }
 
-        free(x);
-        free(y);
         prev = nextNthSemicolon(prev, 3);
         ptr = nextNthSemicolon(ptr, 3);
     }
