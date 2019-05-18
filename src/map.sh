@@ -7,12 +7,32 @@ function usage() {
     exit 1
 }
 
+function getlength() {
+    ruby -pe '$_=($_.split(";").select.each_with_index {|_,i| i%3 == 2}).inject(0) {|sum, x| sum + x.to_i}' <<< "$1"
+}
+
 if (( $# < 2 ))
 then 
     usage
-else
-    echo xx
 fi
+# check if all arguments are valid
+for arg in "${@:2}"; do
+    if ! [[ "$arg" =~ ^[0-9]+$ ]]; then
+        usage
+    fi
+    if (( "$arg" > 1000 )) || (( "$arg" == 0 )); then
+        usage
+    fi
+done
 
-output="$1"
+output_file="$1"
 
+for arg in "${@:2}"; do
+    out=$(grep "^$arg;" "$output_file")
+    if [[ ! -z "$out"  ]]
+    then
+        echo -n "$arg;"
+        getlength "$out"
+        echo
+    fi
+done
