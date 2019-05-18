@@ -9,46 +9,59 @@
 
 #include "status.h"
 
-/*! @def d
- */
+/// Tak oznaczane są wierzchołki, które usuwamy ze słownika.
 #define DELETED ((void *)1)
 
+/// Określa, czy Entry e reprezentuje poprawne dane (czyli, czy zostało
+/// znalezione w słowniku).
 #define NOT_FOUND(e) ((e).key == NULL || (e).key == DELETED)
 
+/**
+ * @brief Taki typ zwraca każda funkcja skrótu używana w słowniku.
+ */
 typedef uint64_t hash_t;
 
 /**
  * Struktura reprezentująca element słownika.
  */
 typedef struct Entry {
-    void *key;                      /// klucz, za pomocą którego szukamy wartości
-    void *val;                      /// skojarzona wartość
+    /// klucz, za pomocą którego szukamy wartości
+    void *key;
+    /// skojarzona wartość
+    void *val;
 } Entry;
 
 /**
  * Struktura reprezentująca słownik.
  */
 typedef struct Dictionary {
-    hash_t (*hash)(void *);         ///
+    /// funkcja skrótu używana w słowniku
+    hash_t (*hash)(void *);
+    /// funkcja porównująca klucze na równość
     bool (*equal)(void *, void *);
+    /// tablica przechowująca pary klucz-wartość
     Entry *array;
+    /// rozmiar tablicy
     size_t array_size;
+    /// liczba elementów w słowniku
     size_t size;
+    /// funkcja zwalniająca pamięć po kluczach
     void (*free_key)(void *);
+    /// funkcja zwalniająca pamięć po wartościach
     void (*free_val)(void *);
 } Dictionary;
 
 /** @brief Usuwa istniejący słownik wraz z elementami.
  * Usuwa strukturę słownika. Zajmuje się zwalnianiem przechowywanych elementów
- * za pomocą funkcji @value free_key i @value free_val.
+ * za pomocą funkcji @p free_key i @p free_val.
  * @param[in,out] dictionary   - słownik do usunięcia.
  */
 void deleteDictionary(Dictionary *dictionary);
 
 /** @brief Tworzy nowy słownik.
  * Tworzy nową strukturę tablicy haszującej. Jeśli elementy są równe według
- * funkcji @ref equal, muszą mieć także ten sam skrót. Funkcje @ref free_key i
- * @ref free_val służą, by można było ręcznie decydować, kto zajmuje się
+ * funkcji @p equal, muszą mieć także ten sam skrót. Funkcje @p free_key i
+ * @p free_val służą, by można było ręcznie decydować, kto zajmuje się
  * zwalnianiem pamięci, czy wskaźniki mogą leżeć na stosie etc.
  * @param[in] hash             - funkcja skrótu (hasz).
  * @param[in] equal            - funkcja porównująca klucze
@@ -83,10 +96,9 @@ Status insertDictionary(Dictionary *dictionary, void *key, void *val);
 Entry getDictionary(Dictionary *dictionary, void *key);
 
 /** @brief Usuwa element ze słownika.
- * Usuwa element ze słownika o kluczu @ref key. Jeśli takiego klucza nie ma,
+ * Usuwa element ze słownika o kluczu @p key. Jeśli takiego klucza nie ma,
  * nic nie robi. Zwalnia pamięć przydzieloną na klucz i wartość za pomocą
- * funkcji
- * @ref free_key i @free_val.
+ * funkcji @p free_key i @p free_val.
  * @param[in,out] dictionary   - słownik, z którego usuwa
  * @param[in] key              - klucz, który chcemy usunąć ze słownika.
  */

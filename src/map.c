@@ -247,7 +247,7 @@ bool repairRoad(Map *map, const char *city1, const char *city2,
     return true;
 }
 
-Status canInsertEdge(Map *map, char *city1, char *city2) {
+static Status canInsertEdge(Map *map, char *city1, char *city2) {
     CHECK_RET(map);
     CHECK_RET(city1);
     CHECK_RET(city2);
@@ -275,7 +275,7 @@ Status addRoadRepair(Map *map, char *city1, char *city2, unsigned length,
     }
 }
 
-bool appendPath(Dictionary *routesThrough, unsigned routeId, List *route,
+static bool appendPath(Dictionary *routesThrough, unsigned routeId, List *route,
                 int *prev, Node *after) {
     int current = after->value;
     int inserted_count = 0;
@@ -542,7 +542,7 @@ FREE:
     return ret;
 }
 
-Status extendPathFromPrev(List *route, int *prev, int start, int end) {
+static Status extendPathFromPrev(List *route, int *prev, int start, int end) {
     int current = start;
     while (current != -1 && current != end) {
         if (listInsertAfter(route, route->begin, current) == false) {
@@ -554,7 +554,7 @@ Status extendPathFromPrev(List *route, int *prev, int start, int end) {
     return true;
 }
 
-List *repairRoute(Map *map, unsigned routeId, int id1, int id2) {
+static List *repairRoute(Map *map, unsigned routeId, int id1, int id2) {
     const uint64_t infinity = UINT64_MAX;
     List *cities = &map->routes[routeId].cities;
     size_t cities_no = map->city_to_int.size;

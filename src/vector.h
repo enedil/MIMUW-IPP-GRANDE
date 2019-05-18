@@ -1,3 +1,6 @@
+/** @file
+ * Interfejs dostarczajacy strukturę tablicy dynamicznej (wektora).
+ */
 #ifndef __VECTOR_H__
 #define __VECTOR_H__
 
@@ -9,8 +12,11 @@
  * Struktura opisująca tablicę dynamiczną (wektor).
  */
 typedef struct Vector {
+    /// tablica z wskaźnikami na elementy
     void **arr;
+    /// rozmiar tablicy
     size_t size;
+     /// pojemność tablicy (zaalokowany rozmiar)
     size_t capacity;
 } Vector;
 
@@ -20,26 +26,26 @@ typedef struct Vector {
 Vector *newVector(void);
 
 /** @brief Usuwa zawartość wektora.
- * @param vector[in,out]        - wektor, którego zawartość chcemy usunąć
+ * @param[in,out] vector        - wektor, którego zawartość chcemy usunąć
  */
 void vectorDelete(Vector *vector);
 
 /** @brief Usuwa wektor wraz z zawartością.
- * @param vector[in,out]        - wektor, którego zawartość chcemy usunąć
+ * @param[in,out] vector        - wektor, którego zawartość chcemy usunąć
  */
 void vectorDeleteFreeContent(Vector *vector);
 
 /** @brief Dodaje element na koniec wektora.
- * @param vector[in,out]        - wektor, który chcemy poszerzyć
- * @param element[in]           - element, o który chcemy poszerzyć wektor
+ * @param[in,out] vector        - wektor, który chcemy poszerzyć
+ * @param[in] element           - element, o który chcemy poszerzyć wektor
  * @return wartość logiczna statusu powodzenia operacji, która może się nie
  * udać w przypadku błędu alokacji pamięci.
  */
 Status vectorAppend(Vector *vector, void *element);
 
 /** @brief Usuwa ostatni element z wektora.
- * @param vector[in,out]        - wektor, z którego usuwamy ostatni element
- * @param free_[in]             - parametr określa, czy powinniśmy zwolnić
+ * @param[in,out] vector        - wektor, z którego usuwamy ostatni element
+ * @param[in] free_             - parametr określa, czy powinniśmy zwolnić
  * pamięć po zwalnianym elemencie przed wymazaniem z wektora.
  */
 void vectorRemoveLast(Vector *vector, bool free_);

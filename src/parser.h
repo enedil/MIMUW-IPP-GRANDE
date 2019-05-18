@@ -7,6 +7,10 @@
 #include "status.h"
 #include <ctype.h>
 
+/** @brief Typ wyliczeniowy, opisujący możliwe wyniki parsowania poleceń. Są
+ * to, albo poprawne operacje (jedna z czterech), albo brak operacji (NOOP),
+ * albo błąd parsowania (ERROR).
+ */
 enum opcode {
     OP_ERROR,
     OP_NOOP,
@@ -19,13 +23,16 @@ enum opcode {
 /** @brief Struktura reprezentująca typ operacji.
  */
 struct operation {
+    /// Element typu wyliczeniowego określający typ operacji.
     enum opcode op;
+    /// Argument operacji, czyli wszystko co jest po pierwszym średniku.
     char *arg;
 };
 
 /** @brief Parsuje linię wejścia, zwracając typ operacji oraz skojarzony
  * argument.
  * @param[in] line      - linia wejścia
+ * @param[in] length    - długość linii wejścia
  * @return struktura reprezentująca status parsowania linii
  */
 struct operation parse(char *line, size_t length);
@@ -54,17 +61,17 @@ Status extractCityName(char *arg, char *city);
  * początkowy fragment @p arg jest poprawnym rokiem, i poprawny fragment
  * kończy się bajtem zerowym, bądź średnikiem.
  * @param[in] arg       - linia wejścia
- * @param[out] length   - rok budowy (naprawy)
+ * @param[out] year   - rok budowy (naprawy)
  * @return Status powodzenia operacji.
  */
 Status extractYear(char *arg, int *year);
 
 /** @brief Wyciąga rok numer drogi krajowej ze wskaźnika arg.
- * Funkcja zapisuje pod wskaźnikiem @p year znaleziony numer drogi krajowej, o
+ * Funkcja zapisuje pod wskaźnikiem @p routeId znaleziony numer drogi krajowej, o
  * ile początkowy fragment @p arg jest poprawny, i poprawny fragment kończy
  * się bajtem zerowym, bądź średnikiem.
  * @param[in] arg       - linia wejścia
- * @param[out] length   - rok budowy (naprawy)
+ * @param[out] routeId  - rok budowy (naprawy)
  * @return Status powodzenia operacji.
  */
 Status extractRouteId(char* arg, unsigned *routeId);

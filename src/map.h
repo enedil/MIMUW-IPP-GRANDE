@@ -152,7 +152,20 @@ char const *getRouteDescription(Map *map, unsigned routeId);
 Status addRoadRepair(Map *map, char *city1, char *city2, unsigned length,
                      int builtYear);
 
+/** @brief Zwraca drogę pomiędzy miastami.
+ * @param[in] map        - mapa, z której szukamy drogi
+ * @param[in] id1        - identyfikator pierwszego z miast
+ * @param[in] id2        - identyfikator drugiego z miast
+ * @return Droga pomiędzi @p id1 i @p id2, o ile taka istnieje. Wpp. droga o
+ * długości 0.
+ */
 Road getRoad(Map *map, int id1, int id2);
+
+/** @brief Dodaje do mapy miasto o nazwie @p city
+ * @param[in,out] map    - mapa, którą modyfikujemy
+ * @param[in] city       - nazwa dodawanego miasta
+ * @return @p false jeśli nastąpił błąd alokacji pamięci, @p true wpp.
+ */
 Status addCity(Map *map, const char *city);
 
 #endif /* __MAP_H__ */

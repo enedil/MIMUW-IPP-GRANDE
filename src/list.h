@@ -11,15 +11,21 @@
 /** Struktura węzła listy dwukierunkowej.
  */
 typedef struct Node {
+    /// Wskaźnik na poprzedni element w liście.
     struct Node *prev;
+    /// Wskaźnik na kolejny element w liście.
     struct Node *next;
+    /// Wartość przechowywana w elemencie.
     int value;
 } Node;
 
 /** Struktura listy dwukierunkowej z dowiązaniami.
+ * Lista przechowuje specjalne elementy, początek i koniec, w których nie przechowuje się żadnych wartości.
  */
 typedef struct List {
+    /// Wskaźnik na początek listy.
     Node *begin;
+    /// Wskaźnik na koniec listy.
     Node *end;
 } List;
 
