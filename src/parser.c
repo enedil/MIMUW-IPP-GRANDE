@@ -9,23 +9,16 @@
 #include "parser.h"
 #include "utils.h"
 
-/** @brief Sprawdza, czy łańcuch znaków tworzy poprawną liczbę całkowitą.
+/** @brief Sprawdza, czy łańcuch znaków tworzy poprawną liczbę całkowitą nieujemną.
  * @param data[in]          - łańcuch znaków do sprawdzenia
  * @param data_len[in]      - długość łańcucha znakóœ
  * @return
  */
-static bool validNumeral(char *data, size_t data_len) {
+static bool validUnsignedNumeral(char *data, size_t data_len) {
     if (data_len == 0) {
         return false;
     }
-    // handle single '-' properly
-    if (data_len == 1) {
-        return isdigit(data[0]);
-    }
-    if (!(isdigit(data[0]) || data[0] == '-')) {
-        return false;
-    }
-    for (size_t i = 1; i < data_len; ++i) {
+    for (size_t i = 0; i < data_len; ++i) {
         if (!(isdigit(data[i]))) {
             return false;
         }
@@ -212,10 +205,10 @@ static bool vAddRoad(char *arg) {
     }
 
     unsigned long long length;
+    int year;
     if (!extractRoadLength(semicolons[1] + 1, &length)) {
         return false;
     }
-    int year;
     if (!extractYear(semicolons[2] + 1, &year)) {
         return false;
     }
@@ -264,7 +257,7 @@ static bool vRouteDescription(char *arg) {
     return extractRouteId(arg, &id);
 }
 
-static void validateArgs(struct operation *ret) {
+static void validateArgs(struct Operation *ret) {
     bool valid = true;
     switch (ret->op) {
     case OP_ROUTE_DESCRIPTION:
@@ -288,8 +281,8 @@ static void validateArgs(struct operation *ret) {
     }
 }
 
-struct operation parse(char *line, size_t length) {
-    struct operation ret = {OP_ERROR, NULL};
+struct Operation parse(char *line, size_t length) {
+    struct Operation ret = {OP_ERROR, NULL};
     if (line == NULL) {
         return ret;
     }
@@ -314,7 +307,7 @@ struct operation parse(char *line, size_t length) {
     }
     size_t op_name_length = first_semicolon - line;
     ret.arg = first_semicolon + 1;
-    if (validNumeral(line, op_name_length)) {
+    if (validUnsignedNumeral(line, op_name_length)) {
         ret.arg = line;
         ret.op = OP_NEW_ROUTE;
     } else if (strncmp(line, "addRoad", op_name_length) == 0) {

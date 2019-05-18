@@ -1,3 +1,6 @@
+/** @file
+ * Implementacja modułu obsługi mapy.
+ */
 #include <assert.h>
 #include <inttypes.h>
 #include <stdio.h>
@@ -9,14 +12,21 @@
 #include "shortest_paths.h"
 #include "utils.h"
 
+/// Nieskończoność - długość najprawdopodobniej dłuższa niż długość każdej ścieżki,
 #define INFINITY UINT64_MAX
 
+/** @brief Usuwa drogi krajowe.
+ * @param[in,out] map       - mapa, z której usuwamy drogi krajowe
+ */
 static void deleteRoutes(Map *map) {
     for (int i = 0; i < ROUTE_MAX; ++i) {
         deleteList(&map->routes[i].cities);
     }
 }
 
+/** @brief Usuwa listę sąsiedztwa, która reprezentuje drogi między miastami.
+ * @param[in,out] map       - mapa, z której usuwamy drogi
+ */
 static void deleteAdjacencyDictionaries(Map *map) {
     if (map == NULL) {
         return;
@@ -28,12 +38,19 @@ static void deleteAdjacencyDictionaries(Map *map) {
     }
 }
 
+/** @brief Zwalnia pamięć z wskaźnika @p ptr o ile ten nie jest @p DELETED.
+ * @param[in,out] ptr           - wskaźnik, spod którego opróżniamy pamięć
+ */
 static void free_(void *ptr) {
     if (ptr != DELETED) {
         free(ptr);
     }
 }
 
+/** @brief Opróżnia listę (zwalnia pamięć).
+ * Współpracuje z listami, które są elementami słownika.
+ * @param[in,out] ptr          - wskaźnik na listę
+ */
 static void free_list(void *ptr) {
     List *l = ptr;
     if (l != NULL && l != DELETED) {
@@ -104,6 +121,22 @@ void deleteMap(Map *map) {
     free(map);
 }
 
+Road getRoadFromName(Map *map, char *city1, char *city2) {
+    Entry e1 = getDictionary(&map->city_to_int, (void *)city1);
+    Entry e2 = getDictionary(&map->city_to_int, (void *)city2);
+    if (NOT_FOUND(e1) || NOT_FOUND(e2)) {
+        return (const Road){0};
+    }
+    int id1 = decodeCityId(e1.val);
+    int id2 = decodeCityId(e2.val);
+    return getRoad(map, id1, id2);
+}
+
+/** @brief Stwierdza, czy drogi @p r1 i @p r2 są tą samą drogą, tylko w przeciwnym kierunku.
+ * @param r1
+ * @param r2
+ * @return
+ */
 static bool areRoadsConsistent(Road *r1, Road *r2) {
     CHECK_RET(r1);
     CHECK_RET(r2);
@@ -247,28 +280,9 @@ bool repairRoad(Map *map, const char *city1, const char *city2,
     return true;
 }
 
-static Status canInsertEdge(Map *map, char *city1, char *city2) {
-    CHECK_RET(map);
-    CHECK_RET(city1);
-    CHECK_RET(city2);
-    Entry e1 = getDictionary(&map->city_to_int, (void *)city1);
-    if (NOT_FOUND(e1)) {
-        return true;
-    }
-    Entry e2 = getDictionary(&map->city_to_int, (void *)city2);
-    if (NOT_FOUND(e2)) {
-        return true;
-    }
-    int id1 = decodeCityId(e1.val);
-    int id2 = decodeCityId(e2.val);
-    Entry edge12 = getDictionary((map->neighbours.arr)[id1], &id2);
-    Entry edge21 = getDictionary((map->neighbours.arr)[id2], &id1);
-    return (NOT_FOUND(edge12) || NOT_FOUND(edge21));
-}
-
 Status addRoadRepair(Map *map, char *city1, char *city2, unsigned length,
                      int builtYear) {
-    if (canInsertEdge(map, city1, city2)) {
+    if (getRoadFromName(map, city1, city2).length == 0) {
         return addRoad(map, city1, city2, length, builtYear);
     } else {
         return repairRoad(map, city1, city2, builtYear);
@@ -279,16 +293,10 @@ static bool appendPath(Dictionary *routesThrough, unsigned routeId, List *route,
                        int *prev, Node *after) {
     int current = after->value;
     int inserted_count = 0;
-    // Node* x;
     if (after == route->begin) {
         current = route->begin->next->value;
-        //    x = after->next;
     } else if (after == route->end) {
         current = route->end->prev->value;
-        //    x = after->prev;
-    } else {
-        fprintf(stderr, "WAT\n");
-        //    x = after;
     }
     while (current != -1 && prev[current] != -1) {
         int p = current;
@@ -308,7 +316,7 @@ static bool appendPath(Dictionary *routesThrough, unsigned routeId, List *route,
             assert(!NOT_FOUND(e));
             List *l = e.val;
             if (listInsertAfter(l, l->begin, routeId) == false) {
-                // TODO: co tutaj zrobić?
+                return false;
             }
         }
         inserted_count++;
@@ -397,6 +405,12 @@ Road getRoad(Map *map, int id1, int id2) {
     return *(Road *)edge12.val;
 }
 
+/** @brief Liczy długość reprezentacji tekstowej drogi krajowej.
+ * @param[in] map       - mapa dróg krajowych, w krórej znajduje się ta szukana
+ * @param[in] routeId   - numer drogi krajowej
+ * @return Długość reprezentacji tekstowej drogi krajowej, o ile ta istnieje.
+ * W przeciwnym wypadku 0.
+ */
 static size_t getRouteDescriptionLength(Map *map, unsigned routeId) {
     Route *route = &map->routes[routeId];
     size_t string_length = intLength(routeId) + 1;
@@ -510,6 +524,7 @@ bool extendRoute(Map *map, unsigned routeId, const char *city) {
     if (visited2 == NULL || prev2 == NULL) {
         goto FREE;
     }
+    // this sets every element to -1
     memset(prev2, 0xff, cities_no * sizeof(int));
 
     for (Node *n = route->begin->next; n != route->end; n = n->next) {
@@ -546,7 +561,6 @@ static Status extendPathFromPrev(List *route, int *prev, int start, int end) {
     int current = start;
     while (current != -1 && current != end) {
         if (listInsertAfter(route, route->begin, current) == false) {
-            // deleteList(route);
             return false;
         }
         current = prev[current];
@@ -603,12 +617,20 @@ FREE:
     return ret;
 }
 
-static void vectorDeleteFreeListContent(Vector *vector, bool x) {
+/** @brief Zwalnia wektor.
+ * Jeśli @p free_as_list true, opróźnia listę pod każdym elementem, w
+ * przeciwnym wypadku tylko zwalnia głowę listy.
+ * @param[in,out] vector        - wektor do opróżnienia
+ * @param[in] free_as_list      - parametr opisuje, czy zwolnić całą listę, czy
+ * tylko jej głowę i ogon (jeśli odpowiedzialność nad zawartością listy została
+ * przeniesiona wcześniej gdzie indziej.
+ */
+static void vectorDeleteFreeListContent(Vector *vector, bool free_as_list) {
     if (vector == NULL) {
         return;
     }
     for (size_t i = 0; i < vector->size; ++i) {
-        if (x) {
+        if (!free_as_list) {
             free(((List *)vector->arr[i])->begin);
         } else {
             deleteList(vector->arr[i]);
@@ -618,8 +640,8 @@ static void vectorDeleteFreeListContent(Vector *vector, bool x) {
     }
     vectorDeleteFreeContent(vector);
 }
-
-bool routeIsValid(Map *map, Route *route) {
+/*
+static bool routeIsValid(Map *map, Route *route) {
     List l = route->cities;
     Node *n = l.begin->next;
     Node *nn = l.begin->next->next;
@@ -632,10 +654,9 @@ bool routeIsValid(Map *map, Route *route) {
         nn = nn->next;
     }
     return true;
-}
+}*/
 
 bool removeRoad(Map *map, const char *city1, const char *city2) {
-
     CHECK_RET(map);
     CHECK_RET(possiblyValidRoad(city1, city2));
 
@@ -663,13 +684,7 @@ bool removeRoad(Map *map, const char *city1, const char *city2) {
     for (Node *n = routesThrough->begin->next; n != routesThrough->end;
          n = n->next) {
         List *l = repairRoute(map, (unsigned)n->value, id1, id2);
-        if (l == NULL) {
-            goto FREE;
-        }
-        if (listInsertBefore(l, l->end, id1) == false) {
-            goto FREE;
-        }
-        if (listInsertAfter(l, l->begin, id2) == false) {
+        if (!l || !listInsertBefore(l, l->end, id1) || !listInsertAfter(l, l->begin, id2)) {
             goto FREE;
         }
         if (vectorAppend(new_routes, l) == false) {
@@ -691,7 +706,6 @@ bool removeRoad(Map *map, const char *city1, const char *city2) {
                 size_t rindex = index;
                 for (Node *nn = n; nn != routesThrough->begin; nn = nn->prev) {
                     unsigned routeId = nn->value;
-                    // uzupełnienie map routesThrough
                     List *r = &((Route *)new_routes->arr[rindex])->cities;
                     for (Node *n = r->begin->next; n != r->end; n = n->next) {
                         int a = n->value;
@@ -725,7 +739,7 @@ bool removeRoad(Map *map, const char *city1, const char *city2) {
         deleteListNode(r, r->end->prev);
         Node *anode = listFind(&map->routes[routeId].cities, id1);
         if (anode == NULL) {
-            // abort();
+            abort();
         }
         if (anode->next->value == b) {
             insertListAfterElement(&map->routes[routeId].cities, r, a);
@@ -733,15 +747,12 @@ bool removeRoad(Map *map, const char *city1, const char *city2) {
             listReverse(r);
             insertListAfterElement(&map->routes[routeId].cities, r, b);
         } else {
-            int x = 0;
-            x++;
-
-            // abort();
+            abort();
         }
-        // if (listPos(&map->routes[routeId].cities, a) <=
-        // listPos(&map->routes[routeId].cities, b)) {
-        // } else {
-        // }
+        if (listPos(&map->routes[routeId].cities, a) <=
+        listPos(&map->routes[routeId].cities, b)) {
+        } else {
+        }
         index++;
     }
 
@@ -752,7 +763,7 @@ bool removeRoad(Map *map, const char *city1, const char *city2) {
 
     ret = true;
 FREE:
-    vectorDeleteFreeListContent(new_routes, ret);
+    vectorDeleteFreeListContent(new_routes, !ret);
     free(new_routes);
     return ret;
 }

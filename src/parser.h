@@ -22,7 +22,7 @@ enum opcode {
 
 /** @brief Struktura reprezentująca typ operacji.
  */
-struct operation {
+struct Operation {
     /// Element typu wyliczeniowego określający typ operacji.
     enum opcode op;
     /// Argument operacji, czyli wszystko co jest po pierwszym średniku.
@@ -35,7 +35,7 @@ struct operation {
  * @param[in] length    - długość linii wejścia
  * @return struktura reprezentująca status parsowania linii
  */
-struct operation parse(char *line, size_t length);
+struct Operation parse(char *line, size_t length);
 
 /** @brief Wyciąga długość drogi ze wskaźnika arg.
  * Funkcja zapisuje pod wskaźnikiem @p length znalezioną długość drogi, o ile

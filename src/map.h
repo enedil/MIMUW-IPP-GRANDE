@@ -169,4 +169,12 @@ Road getRoad(Map *map, int id1, int id2);
  */
 Status addCity(Map *map, const char *city);
 
+/** @brief Znajdź drogę pomiędzy miastami @p city1 i @p city2.
+ * @param[in] map           - mapa, w której szukamy drogi
+ * @param[in] city1         - początek drogi (road.start)
+ * @param[in] city2         - koniec drogi (road.end)
+ * @return Droga pomiędzy @p city1 i @p city2 o ile taka istnieje, wpp. droga długości 0.
+ */
+Road getRoadFromName(Map *map, char *city1, char *city2);
+
 #endif /* __MAP_H__ */

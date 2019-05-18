@@ -126,16 +126,6 @@ bool equalInt(void *p1, void *p2) {
     return 0 == memcmp(p1, p2, sizeof(int));
 }
 
-void deleteVectorOfLists(Vector *vector) {
-    if (vector == NULL) {
-        return;
-    }
-    for (size_t i = 0; i < vector->size; ++i) {
-        deleteList(vector->arr[i]);
-    }
-    vectorDeleteFreeContent(vector);
-}
-
 void swap(int *x, int *y) {
     int z = *x;
     *x = *y;

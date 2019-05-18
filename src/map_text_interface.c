@@ -1,3 +1,6 @@
+/** @file
+ * Implementacja interfejsu tekstowego obsługi mapy.
+ */
 #include "map_text_interface.h"
 #include "utils.h"
 #include <stdio.h>
@@ -63,17 +66,6 @@ Status execGetRouteDescription(Map *map, char *arg) {
     } else {
         return false;
     }
-}
-
-Road getRoadFromName(Map *map, char *city1, char *city2) {
-    Entry e1 = getDictionary(&map->city_to_int, (void *)city1);
-    Entry e2 = getDictionary(&map->city_to_int, (void *)city2);
-    if (NOT_FOUND(e1) || NOT_FOUND(e2)) {
-        return (const Road){0};
-    }
-    int id1 = decodeCityId(e1.val);
-    int id2 = decodeCityId(e2.val);
-    return getRoad(map, id1, id2);
 }
 
 /** @brief Zwraca wskaźnik po n-tym średniku w stringu.

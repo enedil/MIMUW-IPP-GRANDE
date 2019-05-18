@@ -124,7 +124,7 @@ void deleteFromDictionary(Dictionary *dictionary, void *key) {
             dictionary->free_key(dictionary->array[index].key);
             dictionary->free_val(dictionary->array[index].val);
             dictionary->array[index].key = DELETED;
-            dictionary->array[index].val = DELETED;
+            dictionary->array[index].val = NULL;
             dictionary->size--;
             return;
         }

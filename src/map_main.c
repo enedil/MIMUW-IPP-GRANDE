@@ -30,7 +30,7 @@ int main() {
         if (errno == ENOMEM) {
             exit(0);
         }
-        struct operation op = parse(line, strlen(line));
+        struct Operation op = parse(line, strlen(line));
         switch (op.op) {
         case OP_ROUTE_DESCRIPTION:
             error(!execGetRouteDescription(m, op.arg));

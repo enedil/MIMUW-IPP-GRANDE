@@ -1,3 +1,6 @@
+/** @file
+ * Różne pomocnicze funkcje.
+ */
 #ifndef __STRING_UTILS__
 #define __STRING_UTILS__
 
@@ -60,56 +63,60 @@ bool nValidCityName(const char *city, size_t n);
  */
 bool possiblyValidRoad(const char *city1, const char *city2);
 
-void deleteDictionaryOfLists(Dictionary *d);
+/** @brief Funkcja skrótu dla krawędzi.
+ * @param[in] key     - krawędź zakodowana za pomocą @ref encodeEdgeAsPtr
+ * @return Skrót (hasz) krawędzi.
+ */
 hash_t hashEdge(void *key);
 
 /** @brief Porównuje (stwierdza równość bądź różność) krawędzi.
  * Krawędzie są równe, jeśli zbiory ich końców są równe. Nadaje się do
  * stosowania w słowniku.
- * @param e1          - krawędź pierwsza
- * @param e2          - krawędź druga
+ * @param[in] e1          - krawędź pierwsza
+ * @param[in] e2          - krawędź druga
  * @return Wartość logiczna określająca równość @p e1 i @p e2.
  */
 bool cmpEdges(void *e1, void *e2);
 
 /** @brief Znajduje długość liczby całkowitej w zapisie dziesiętnym.
- * @param x[in]       - liczba, której długości szukamy
+ * @param[in] x       - liczba, której długości szukamy
  * @return Długośc zapisu dziesiętnego (wraz z ewentualnym znakiem '-')
  * liczby x.
  */
 size_t intLength(int64_t x);
+
 void *encodeEdgeAsPtr(int a, int b);
 void *encodeCityId(int id);
 int decodeCityId(void *p);
 
 /** @brief Wybiera mniejszą z dwóch liczb.
- * @param a[in]          - pierwsza z liczb
- * @param b[in]          - druga z liczb.
+ * @param[in] a          - pierwsza z liczb
+ * @param[in] b          - druga z liczb.
  * @return Mniejsza z liczb a, b.
  */
 int min(int a, int b);
 
 /** @brief Funkcja skrótu dla liczb całkowitych (int)
- * @param p[in]          - liczba całkowita do skrócenia
+ * @param[in] p          - liczba całkowita do skrócenia
  * @return
  */
 hash_t hashInt(void *p);
 
 /** @brief Porównuje dwie liczby
- * @param p1[in]         - pierwsza z liczb do porównania
- * @param p2[in]         - druga z liczb do porównania
+ * @param[in] p1         - pierwsza z liczb do porównania
+ * @param[in] p2         - druga z liczb do porównania
  * @return wartośc logiczna czy p1 jest równe p2
  */
 bool equalInt(void *p1, void *p2);
 
 /** @brief Usuwa wektor list, zwalniając przeznaczoną na elementy pamięć.
- * @param vector[in,out] - wektor do opróżnienia
+ * @param[in,out] vector - wektor do opróżnienia
  */
 void deleteVectorOfLists(Vector *vector);
 
 /** @brief Zamienia wartościami zawartości wskaźników @p x i @p y
- * @param x[in,out]       - wskaźnik na pierwszą z liczb
- * @param y[in,out]       - wskaźnik na drugą z licz
+ * @param[in,out] x       - wskaźnik na pierwszą z liczb
+ * @param[in,out] y       - wskaźnik na drugą z licz
  */
 void swap(int *x, int *y);
 
@@ -117,7 +124,7 @@ void swap(int *x, int *y);
  * Funkcja służy do wstawienia do słownika, w którym klucze lub wartości nie
  * wymagają zwalniania (np. znajdują się na stosie, nie wskazują na istotne dane
  * i nigdy nie są dereferencjonowane, bądź wskazują na zmienne globalne).
- * @param ptr[in]         - nieistotny wskaźnik
+ * @param[in] ptr         - nieistotny wskaźnik
  */
 void empty(void *ptr);
 

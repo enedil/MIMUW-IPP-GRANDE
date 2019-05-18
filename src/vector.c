@@ -24,9 +24,7 @@ void vectorDelete(Vector *vector) {
         return;
     }
     free(vector->arr);
-    vector->size = 0; // avoid potential "use after free"
-    vector->capacity = 0;
-    //    free(vector);
+    vector->size = vector->capacity = 0; // avoid potential "use after free"
 }
 
 void vectorDeleteFreeContent(Vector *vector) {

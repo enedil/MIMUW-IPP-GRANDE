@@ -1,3 +1,6 @@
+/** @file
+ * Interfejs tekstowy.
+ */
 #ifndef __MAP_TEXT_INTERFACE_H__
 #define __MAP_TEXT_INTERFACE_H__
 
