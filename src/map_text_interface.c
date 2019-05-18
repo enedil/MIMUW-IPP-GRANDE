@@ -75,7 +75,7 @@ Status execGetRouteDescription(Map *map, char *arg) {
  * istnieje.
  */
 static char *nextNthSemicolon(char *ptr, size_t n) {
-    for (size_t i = 0; i < n && ptr - 1; ++i) {
+    for (size_t i = 0; i < n && (ptr - 1) != NULL; ++i) {
         ptr = strchr(ptr, ';') + 1;
     }
     return ptr == (void *)1 ? NULL : ptr;

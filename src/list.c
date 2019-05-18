@@ -92,28 +92,6 @@ void deleteListNode(List *list, Node *node) {
     free(node);
 }
 
-List *copyList(List *list) {
-    List *ret = newList();
-    CHECK_RET(ret);
-    for (Node *n = list->begin->next; n != list->end; n = n->next) {
-        if (listInsertAfter(ret, ret->end, n->value) == false) {
-            deleteList(ret);
-            return NULL;
-        }
-    }
-    return ret;
-}
-
-Status listInsertUnique(List *list, int el) {
-    CHECK_RET(list);
-    for (Node *n = list->begin->next; n != list->end; n = n->next) {
-        if (n->value == el) {
-            return true;
-        }
-    }
-    return listInsertAfter(list, list->end, el);
-}
-
 void listEmplaceNode(List *list, Node *after, Node *val) {
     if (after == list->end) {
         after = after->prev;
@@ -133,7 +111,6 @@ void insertListAfterElement(List *l, List *new, int el) {
             new->begin->next->prev = n;
             new->end->prev->next = x;
             x->prev = new->end->prev;
-            // free(new->begin);
             return;
         }
     }

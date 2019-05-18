@@ -58,14 +58,6 @@ bool possiblyValidRoad(const char *city1, const char *city2) {
     return true;
 }
 
-void deleteDictionaryOfLists(Dictionary *d) {
-    for (size_t i = 0; i < d->array_size; ++i) {
-        List *l = d->array[i].val;
-        deleteList(l);
-    }
-    deleteDictionary(d);
-}
-
 hash_t hashEdge(void *key) { return (hash_t)key; }
 
 bool cmpEdges(void *e1, void *e2) {

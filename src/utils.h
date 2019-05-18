@@ -63,12 +63,6 @@ bool nValidCityName(const char *city, size_t n);
  */
 bool possiblyValidRoad(const char *city1, const char *city2);
 
-/** @brief Funkcja skrótu dla krawędzi.
- * @param[in] key     - krawędź zakodowana za pomocą @ref encodeEdgeAsPtr
- * @return Skrót (hasz) krawędzi.
- */
-hash_t hashEdge(void *key);
-
 /** @brief Porównuje (stwierdza równość bądź różność) krawędzi.
  * Krawędzie są równe, jeśli zbiory ich końców są równe. Nadaje się do
  * stosowania w słowniku.
@@ -85,9 +79,33 @@ bool cmpEdges(void *e1, void *e2);
  */
 size_t intLength(int64_t x);
 
+/** @brief Zakodowuje drogę jako wskaźnik, który można wstawić do słownika.
+ * encodeEdgeAsPtr(a, b) == encodeEdgeAsPtr(b, a)
+ * @param[in] a       - początek drogi
+ * @param[in] b       - koniec drogi
+ * @return Wskaźnik reprezentujący drogę z @p a do @p b (i na odwrót).
+ */
 void *encodeEdgeAsPtr(int a, int b);
+
+/** @brief Koduje liczbę jako wskaźnik, który można wstawić do słownika.
+ * @param[in] id      - liczba do zakodowania
+ * @return Wskaźnik unikalnie reprezentujący liczbę @p id
+ */
 void *encodeCityId(int id);
+
+/** @brief Funkcja odwrotna do @ref encodeCityId.
+ * Dekoduje wskaźnik jako liczbę, by móc operować na wartości po wyjęciu ze
+ * słownika.
+ * @param[in] p       - wskaźnik do dekodowania
+ * @return
+ */
 int decodeCityId(void *p);
+
+/** @brief Funkcja skrótu dla krawędzi.
+ * @param[in] key     - krawędź zakodowana za pomocą @ref encodeEdgeAsPtr
+ * @return Skrót (hasz) krawędzi.
+ */
+hash_t hashEdge(void *key);
 
 /** @brief Wybiera mniejszą z dwóch liczb.
  * @param[in] a          - pierwsza z liczb
