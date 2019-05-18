@@ -80,7 +80,7 @@ static bool cmpSemicolonTerminated(void *ptr1, void *ptr2) {
 }
 
 Status extractCityName(char *arg, char *city) {
-    if (arg == NULL || city  == NULL) {
+    if (arg == NULL || city == NULL) {
         return false;
     }
     char *p = strchrnul(arg, ';');
@@ -118,11 +118,11 @@ Status extractYear(char *arg, int *year) {
     return true;
 }
 
-Status extractRouteId(char* arg, unsigned *routeId) {
+Status extractRouteId(char *arg, unsigned *routeId) {
     if (arg == NULL || routeId == NULL) {
         return false;
     }
-    char* out;
+    char *out;
     unsigned long x = strtoul(arg, &out, 10);
     if (errno != 0 || (*out != 0 && *out != ';')) {
         return false;

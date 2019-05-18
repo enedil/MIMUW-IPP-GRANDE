@@ -67,13 +67,13 @@ Status extractCityName(char *arg, char *city);
 Status extractYear(char *arg, int *year);
 
 /** @brief Wyciąga rok numer drogi krajowej ze wskaźnika arg.
- * Funkcja zapisuje pod wskaźnikiem @p routeId znaleziony numer drogi krajowej, o
- * ile początkowy fragment @p arg jest poprawny, i poprawny fragment kończy
+ * Funkcja zapisuje pod wskaźnikiem @p routeId znaleziony numer drogi krajowej,
+ * o ile początkowy fragment @p arg jest poprawny, i poprawny fragment kończy
  * się bajtem zerowym, bądź średnikiem.
  * @param[in] arg       - linia wejścia
  * @param[out] routeId  - rok budowy (naprawy)
  * @return Status powodzenia operacji.
  */
-Status extractRouteId(char* arg, unsigned *routeId);
+Status extractRouteId(char *arg, unsigned *routeId);
 
 #endif /* __PARSER_H__ */

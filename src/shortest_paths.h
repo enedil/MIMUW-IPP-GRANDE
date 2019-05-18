@@ -1,6 +1,6 @@
 /** @file
-  * Znajduje najkrótrze ścieżki między miastami
-  */
+ * Znajduje najkrótrze ścieżki między miastami
+ */
 #ifndef __SHORTEST_PATHS_H__
 #define __SHORTEST_PATHS_H__
 #include "map_struct.h"

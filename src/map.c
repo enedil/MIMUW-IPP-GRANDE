@@ -4,10 +4,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "map.h"
 #include "map_struct.h"
 #include "shortest_paths.h"
 #include "utils.h"
-#include "map.h"
 
 #define INFINITY UINT64_MAX
 
@@ -46,7 +46,7 @@ static void free_list(void *ptr) {
 Map *newMap(void) {
     Map *map = calloc(1, sizeof(Map));
     CHECK_RET(map);
-    /// route number 0 is invalid, as per task descritption
+    /// Droga krajowa o numerze 0 jest niepoprawna.
     memset(map->routes, 0, ROUTE_MAX * sizeof(Route));
 
     Dictionary *d =
@@ -276,7 +276,7 @@ Status addRoadRepair(Map *map, char *city1, char *city2, unsigned length,
 }
 
 static bool appendPath(Dictionary *routesThrough, unsigned routeId, List *route,
-                int *prev, Node *after) {
+                       int *prev, Node *after) {
     int current = after->value;
     int inserted_count = 0;
     // Node* x;

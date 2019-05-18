@@ -20,7 +20,8 @@ typedef struct Node {
 } Node;
 
 /** Struktura listy dwukierunkowej z dowiązaniami.
- * Lista przechowuje specjalne elementy, początek i koniec, w których nie przechowuje się żadnych wartości.
+ * Lista przechowuje specjalne elementy, początek i koniec, w których nie
+ * przechowuje się żadnych wartości.
  */
 typedef struct List {
     /// Wskaźnik na początek listy.
@@ -87,7 +88,8 @@ List *copyList(List *list);
 void listEmplaceNode(List *list, Node *after, Node *val);
 
 /** @brief Wstawia listę @p new do listy @p l po elemencie o wartości @p el.
- * Jeśli @p el znajduje się na liście @p new, inwaliduje kolejne operacje na liście
+ * Jeśli @p el znajduje się na liście @p new, inwaliduje kolejne operacje na
+ * liście
  * @p new (i przejmuje obowiązek zajmowania się zwalnianiem pamięci).
  * @param[in,out] l            - lista, którą będziemy poszerzać
  * @param[in,out] new          - lista, którą będziemy wstawiać
@@ -120,6 +122,6 @@ Node *listFind(List *l, int el);
  * @param[in] l                - lista do sprawdzenia
  * @return @p true jeśli lista jest pusta, @p false gdy nie jest.
  */
-bool isEmptyList(List* l);
+bool isEmptyList(List *l);
 
 #endif /* __LIST_H__ */

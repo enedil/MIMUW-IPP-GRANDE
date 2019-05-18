@@ -16,7 +16,7 @@ typedef struct Vector {
     void **arr;
     /// rozmiar tablicy
     size_t size;
-     /// pojemność tablicy (zaalokowany rozmiar)
+    /// pojemność tablicy (zaalokowany rozmiar)
     size_t capacity;
 } Vector;
 

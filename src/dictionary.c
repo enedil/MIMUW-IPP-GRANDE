@@ -4,7 +4,12 @@
 
 #define DICTIONARY_INITIAL_SIZE 4
 #define INDEX(key) dictionary->hash((key)) & (dictionary->array_size - 1)
-#define NEXT_INDEX(index) {if (++(index) == dictionary->array_size) {(index) = 0;}}
+#define NEXT_INDEX(index)                                                      \
+    {                                                                          \
+        if (++(index) == dictionary->array_size) {                             \
+            (index) = 0;                                                       \
+        }                                                                      \
+    }
 
 void deleteDictionary(Dictionary *dictionary) {
     if (dictionary == NULL) {

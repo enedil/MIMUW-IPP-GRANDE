@@ -6,7 +6,8 @@
 
 #include <stdbool.h>
 
-/// Status jest aliasem na typ @p bool i służy do sygnalizacji wadliwego działania.
+/// Status jest aliasem na typ @p bool i służy do sygnalizacji wadliwego
+/// działania.
 typedef bool Status;
 
 /// CHECK_RET zwraca @p false, jeśli argument jest fałszywy.

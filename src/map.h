@@ -10,8 +10,8 @@
 #ifndef __MAP_H__
 #define __MAP_H__
 
-#include <stdbool.h>
 #include "map_struct.h"
+#include <stdbool.h>
 
 /**
  * Struktura przechowująca mapę dróg krajowych.
@@ -139,9 +139,10 @@ bool removeRoad(Map *map, const char *city1, const char *city2);
 char const *getRouteDescription(Map *map, unsigned routeId);
 
 /** @brief Dodaje drogę, lub ją naprawia, jeśli już taka istnieje.
- * Operacja może się nie powieść, jeśli nastąpi błąd alokacji pamięci, oba miasta
- * są te same, długość jest zerowa, rok budowy jest zerowy, bądź istnieje już droga
- * pomiędzy @p city1 i @p city2 i ma różną długość bądź nowszy rok budowy.
+ * Operacja może się nie powieść, jeśli nastąpi błąd alokacji pamięci, oba
+ * miasta są te same, długość jest zerowa, rok budowy jest zerowy, bądź istnieje
+ * już droga pomiędzy @p city1 i @p city2 i ma różną długość bądź nowszy rok
+ * budowy.
  * @param[in,out] map    - wskaźnik na strukturę przechowującą mapę dróg
  * @param[in] city1      - nazwa pierwszego z miast
  * @param[in] city2      - nazwa drugiego z miast

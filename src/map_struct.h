@@ -46,8 +46,8 @@ typedef struct Map {
     /// Słownik Dictionary[char*, int], który służy do uzyskania
     /// identyfikatora, na podstawie tekstowej nazwy miasta.
     Dictionary city_to_int;
-    /// Słownik Dictionary[(int, int), List[int]] dla każdej krawędzi przechowuje
-    /// listę dróg krajowych, które przez nią przebiegają.
+    /// Słownik Dictionary[(int, int), List[int]] dla każdej krawędzi
+    /// przechowuje listę dróg krajowych, które przez nią przebiegają.
     Dictionary routesThrough;
 } Map;
 

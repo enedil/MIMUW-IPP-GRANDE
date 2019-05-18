@@ -7,8 +7,8 @@
 #include <string.h>
 
 #include "map.h"
-#include "parser.h"
 #include "map_text_interface.h"
+#include "parser.h"
 
 static size_t line_no = 0;
 
