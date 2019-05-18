@@ -71,7 +71,7 @@ void deleteList(List *list) {
         free(it->prev);
         it->prev = NULL;
     }
-    list->begin = list->end =NULL;
+    list->begin = list->end = NULL;
     free(begin);
 }
 

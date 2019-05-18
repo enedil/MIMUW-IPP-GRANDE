@@ -9,7 +9,8 @@
 #include "parser.h"
 #include "utils.h"
 
-/** @brief Sprawdza, czy łańcuch znaków tworzy poprawną liczbę całkowitą nieujemną.
+/** @brief Sprawdza, czy łańcuch znaków tworzy poprawną liczbę całkowitą
+ * nieujemną.
  * @param data[in]          - łańcuch znaków do sprawdzenia
  * @param data_len[in]      - długość łańcucha znakóœ
  * @return

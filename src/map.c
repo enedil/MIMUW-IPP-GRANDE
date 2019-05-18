@@ -12,7 +12,8 @@
 #include "shortest_paths.h"
 #include "utils.h"
 
-/// Nieskończoność - długość najprawdopodobniej dłuższa niż długość każdej ścieżki,
+/// Nieskończoność - długość najprawdopodobniej dłuższa niż długość każdej
+/// ścieżki.
 #define INFINITY UINT64_MAX
 
 /** @brief Usuwa drogi krajowe.
@@ -132,7 +133,8 @@ Road getRoadFromName(Map *map, char *city1, char *city2) {
     return getRoad(map, id1, id2);
 }
 
-/** @brief Stwierdza, czy drogi @p r1 i @p r2 są tą samą drogą, tylko w przeciwnym kierunku.
+/** @brief Stwierdza, czy drogi @p r1 i @p r2 są tą samą drogą, tylko w
+ * przeciwnym kierunku.
  * @param r1
  * @param r2
  * @return
@@ -684,7 +686,8 @@ bool removeRoad(Map *map, const char *city1, const char *city2) {
     for (Node *n = routesThrough->begin->next; n != routesThrough->end;
          n = n->next) {
         List *l = repairRoute(map, (unsigned)n->value, id1, id2);
-        if (!l || !listInsertBefore(l, l->end, id1) || !listInsertAfter(l, l->begin, id2)) {
+        if (!l || !listInsertBefore(l, l->end, id1) ||
+            !listInsertAfter(l, l->begin, id2)) {
             goto FREE;
         }
         if (vectorAppend(new_routes, l) == false) {
@@ -750,7 +753,7 @@ bool removeRoad(Map *map, const char *city1, const char *city2) {
             abort();
         }
         if (listPos(&map->routes[routeId].cities, a) <=
-        listPos(&map->routes[routeId].cities, b)) {
+            listPos(&map->routes[routeId].cities, b)) {
         } else {
         }
         index++;
