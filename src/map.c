@@ -118,7 +118,6 @@ void deleteMap(Map *map) {
     // deleteDictionaryOfLists(&map->routesThrough);
     deleteDictionary(&map->routesThrough);
     vectorDeleteFreeContent(&map->int_to_city);
-
     free(map);
 }
 
@@ -291,8 +290,18 @@ Status addRoadRepair(Map *map, char *city1, char *city2, unsigned length,
     }
 }
 
-static bool appendPath(Dictionary *routesThrough, unsigned routeId, List *route,
-                       int *prev, Node *after) {
+/** @brief Dodaje do drogi krajowej fragment wskazany przez tablicę @p prev.
+ * @param[in,out] routesThrough    - słownik dróg krajowych  przebiagających
+ * przez drogi
+ * @param[in] routeId              - numer drogi krajowej, którą modyfikujemy
+ * @param[in,out] route            - droga krajowa, którą modyfikujemy
+ * @param[in] prev                 - tablica wyznaczonych poprzedników elementów
+ * @param[in] after                - element, po którym należy wstawiać nowe
+ * wierzchołki
+ * @return Status powodzenia operacji.
+ */
+static Status appendPath(Dictionary *routesThrough, unsigned routeId,
+                         List *route, int *prev, Node *after) {
     int current = after->value;
     int inserted_count = 0;
     if (after == route->begin) {
@@ -642,21 +651,6 @@ static void vectorDeleteFreeListContent(Vector *vector, bool free_as_list) {
     }
     vectorDeleteFreeContent(vector);
 }
-/*
-static bool routeIsValid(Map *map, Route *route) {
-    List l = route->cities;
-    Node *n = l.begin->next;
-    Node *nn = l.begin->next->next;
-    while (nn != l.end) {
-        Road r = getRoad(map, n->value, nn->value);
-        if (r.builtYear == 0) {
-            return false;
-        }
-        n = n->next;
-        nn = nn->next;
-    }
-    return true;
-}*/
 
 bool removeRoad(Map *map, const char *city1, const char *city2) {
     CHECK_RET(map);
