@@ -41,14 +41,28 @@ int main() {
         case OP_ADD_ROAD:
             error(!execAddRoad(m, op.arg));
             break;
+        case OP_NEW_ROUTE_THROUGH:
+            error(!execNewRouteThrough(m, op.arg));
+            break;
         case OP_NEW_ROUTE:
             error(!execNewRoute(m, op.arg));
+            break;
+        case OP_EXTEND_ROUTE:
+            error(!execExtendRoute(m, op.arg));
+            break;
+        case OP_REMOVE_ROUTE:
+            error(!execRemoveRoute(m, op.arg));
+            break;
+        case OP_REMOVE_ROAD:
+            error(!execRemoveRoad(m, op.arg));
             break;
         case OP_ERROR:
             error(true);
             break;
         case OP_NOOP:
             break;
+        default:
+            fprintf(stderr, "NOT IMPLEMENTED\n");
         }
     }
     free(line);

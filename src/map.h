@@ -178,4 +178,11 @@ Status addCity(Map *map, const char *city);
  */
 Road getRoadFromName(Map *map, char *city1, char *city2);
 
+/** @brief Usuwa z mapy drogę krajową o podanym numerze.
+ * @param[in] map           - mapa, z której usuwamy drogę krajową
+ * @param[in] routeId       - numer drogi krajowej
+ * @return
+ */
+bool removeRoute(Map* map, unsigned routeId);
+
 #endif /* __MAP_H__ */

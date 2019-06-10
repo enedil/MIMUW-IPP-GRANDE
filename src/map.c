@@ -764,3 +764,45 @@ FREE:
     free(new_routes);
     return ret;
 }
+
+static void removeFromList(List* l, int v) {
+    for (Node* n = l->begin->next; n != l->end; n = n->next) {
+        if (v == n->value) {
+            Node* curr = n;
+            n->prev->next = n->next;
+            curr->next->prev = curr->prev;
+            free(curr);
+            return;
+        }
+    }
+}
+
+bool removeRoute(Map* map, unsigned routeId) {
+    if (!map) {
+        return false;
+    }
+    if (map->routes[routeId].cities.begin == NULL) {
+        return false;
+    }
+    if (isEmptyList(&map->routes[routeId].cities)) {
+        return false;
+    }
+
+    Node* n1 = map->routes[routeId].cities.begin->next;
+    Node* n2 = map->routes[routeId].cities.begin->next->next;
+    if (n2 == map->routes[routeId].cities.end) {
+        return false;
+    }
+    while (n2 != map->routes[routeId].cities.end) {
+        Entry e = getDictionary(&map->routesThrough, encodeEdgeAsPtr(n1->value, n2->value));
+        if (NOT_FOUND(e)) {
+            return false;
+        }
+        removeFromList(e.val, routeId);
+        n1 = n1->next;
+        n2 = n2->next;
+    }
+
+    deleteList(&map->routes[routeId].cities);
+    return true;
+}

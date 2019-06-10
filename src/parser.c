@@ -125,7 +125,7 @@ Status extractRouteId(char *arg, unsigned *routeId) {
     return true;
 }
 
-static bool vNewRoute(char *arg) {
+static bool vNewRouteThrough(char *arg) {
     Status ret = false;
     if (*arg == 0 || *arg == ';') {
         return false;
@@ -246,6 +246,9 @@ static bool vRepairRoad(char *arg) {
     if (!possiblyValidRoad(c1, c2)) {
         return false;
     }
+    if (countChar(second_semicolon + 1, ';') != 0) {
+        return false;
+    }
     int year;
     return extractYear(second_semicolon + 1, &year) != 0;
 }
@@ -256,6 +259,44 @@ static bool vRouteDescription(char *arg) {
         return false;
     }
     return extractRouteId(arg, &id);
+}
+
+static bool vNewRoute(char* arg) {
+    if (countChar(arg, ';') != 2) {
+        return false;
+    }
+    char* firstsemicolon = strchr(arg, ';');
+    *firstsemicolon = 0;
+    char* secondsemicolon = strchr(firstsemicolon + 1, ';');
+    if (!possiblyValidRoad(firstsemicolon + 1, secondsemicolon + 1)) {
+        return false;
+    }
+    unsigned rid;
+    Status s = extractRouteId(arg, &rid);
+    *firstsemicolon = ';';
+    return s;
+}
+
+static bool vExtendRoute(char* arg) {
+    if (countChar(arg, ';') != 1) {
+        return false;
+    }
+    unsigned rid;
+    Status s = extractRouteId(arg, &rid);
+    if (!s) {
+        return false;
+    }
+    char c[strlen(arg)+1];
+    return extractCityName(strchr(arg, ';'), c);
+}
+
+static bool vRemoveRoad(char* arg) {
+    if (countChar(arg, ';') != 1) {
+        return false;
+    }
+    char* semicolon = strchr(arg, ';');
+    *semicolon = 0;
+    return possiblyValidRoad(arg, semicolon + 1);
 }
 
 static void validateArgs(struct Operation *ret) {
@@ -270,8 +311,20 @@ static void validateArgs(struct Operation *ret) {
     case OP_ADD_ROAD:
         valid = vAddRoad(ret->arg);
         break;
+    case OP_NEW_ROUTE_THROUGH:
+        valid = vNewRouteThrough(ret->arg);
+        break;
     case OP_NEW_ROUTE:
         valid = vNewRoute(ret->arg);
+        break;
+    case OP_EXTEND_ROUTE:
+        valid = vExtendRoute(ret->arg);
+        break;
+    case OP_REMOVE_ROUTE:
+        valid = vRouteDescription(ret->arg); // the syntax is the same
+        break;
+    case OP_REMOVE_ROAD:
+        valid = vRemoveRoad(ret->arg);
         break;
     case OP_ERROR:
     case OP_NOOP:
@@ -310,6 +363,8 @@ struct Operation parse(char *line, size_t length) {
     ret.arg = first_semicolon + 1;
     if (validUnsignedNumeral(line, op_name_length)) {
         ret.arg = line;
+        ret.op = OP_NEW_ROUTE_THROUGH;
+    } else if (strncmp(line, "newRoute", op_name_length)) {
         ret.op = OP_NEW_ROUTE;
     } else if (strncmp(line, "addRoad", op_name_length) == 0) {
         ret.op = OP_ADD_ROAD;
@@ -317,6 +372,12 @@ struct Operation parse(char *line, size_t length) {
         ret.op = OP_REPAIR_ROAD;
     } else if (strncmp(line, "getRouteDescription", op_name_length) == 0) {
         ret.op = OP_ROUTE_DESCRIPTION;
+    } else if (strncmp(line, "extendRoute", op_name_length) == 0) {
+        ret.op = OP_EXTEND_ROUTE;
+    } else if (strncmp(line, "removeRoad", op_name_length) == 0) {
+        ret.op = OP_REMOVE_ROAD;
+    } else if (strncmp(line, "removeRoute", op_name_length) == 0) {
+        ret.op = OP_REMOVE_ROUTE;
     }
     validateArgs(&ret);
     return ret;

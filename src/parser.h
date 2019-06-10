@@ -17,7 +17,11 @@ enum opcode {
     OP_NEW_ROUTE,
     OP_ADD_ROAD,
     OP_REPAIR_ROAD,
-    OP_ROUTE_DESCRIPTION
+    OP_ROUTE_DESCRIPTION,
+    OP_NEW_ROUTE_THROUGH,
+    OP_REMOVE_ROAD,
+    OP_REMOVE_ROUTE,
+    OP_EXTEND_ROUTE
 };
 
 /** @brief Struktura reprezentująca typ operacji.

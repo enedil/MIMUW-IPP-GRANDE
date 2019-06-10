@@ -6,8 +6,13 @@
 #include "utils.h"
 
 hash_t nHashString(void *str, size_t len) {
-    const char *c = str;
+    const uint8_t *c = str;
     hash_t ret = 0;
+    for (size_t i = 0; i < len; ++i) {
+        ret = ret*149 + c[i];
+    }
+    return ret;
+
     size_t x = sizeof(hash_t) * (len / sizeof(hash_t));
     for (size_t i = 0; i < x; i += sizeof(hash_t)) {
         ret ^= *(const hash_t *)(c + i);
