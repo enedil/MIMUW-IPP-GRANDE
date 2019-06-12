@@ -134,6 +134,11 @@ static bool vNewRouteThrough(char *arg) {
     if ((semicolon_count % 3 != 1) || semicolon_count <= 1) {
         return false;
     }
+    for (char* p = arg+1; *p != 0; ++p) {
+        if (*p == *(p-1) && *p == ';') {
+            return false;
+        }
+    }
 
     char *ptr = arg;
 
@@ -171,6 +176,7 @@ static bool vNewRouteThrough(char *arg) {
         }
         ptr = strchr(ptr + 1, ';') + 1;
     }
+
     Entry e = getDictionary(detect_duplicates, ptr);
     if (!NOT_FOUND(e)) {
         goto CLEANUP;
@@ -261,6 +267,17 @@ static bool vRouteDescription(char *arg) {
     return extractRouteId(arg, &id);
 }
 
+static bool vRemoveRoute(char *arg) {
+    unsigned id;
+    if (*arg < '0' || *arg > '9') {
+        return false;
+    }
+    if (!extractRouteId(arg, &id)) {
+        return false;
+    }
+    return 0 < id && id < 1000;
+}
+
 static bool vNewRoute(char* arg) {
     if (countChar(arg, ';') != 2) {
         return false;
@@ -296,7 +313,9 @@ static bool vRemoveRoad(char* arg) {
     }
     char* semicolon = strchr(arg, ';');
     *semicolon = 0;
-    return possiblyValidRoad(arg, semicolon + 1);
+    bool ret = possiblyValidRoad(arg, semicolon + 1);
+    *semicolon = ';';
+    return ret;
 }
 
 static void validateArgs(struct Operation *ret) {
@@ -321,7 +340,7 @@ static void validateArgs(struct Operation *ret) {
         valid = vExtendRoute(ret->arg);
         break;
     case OP_REMOVE_ROUTE:
-        valid = vRouteDescription(ret->arg); // the syntax is the same
+        valid = vRemoveRoute(ret->arg);
         break;
     case OP_REMOVE_ROAD:
         valid = vRemoveRoad(ret->arg);
@@ -334,6 +353,22 @@ static void validateArgs(struct Operation *ret) {
         ret->op = OP_ERROR;
     }
 }
+/*
+static int strscmp(char* s1, char* s2) {
+    for (size_t i = 0;; ++i) {
+        if ((*s1 == ';' || *s1 == 0) && (*s2 == ';' || *s2 == 0)) {
+            return 0;
+        }
+        if (*s1 == ';' || *s1 == 0) {
+            return 1;
+        }
+        if (*s2 == ';' || *s2 == 0) {
+            return 1;
+        }
+        s1++;
+        s2++;
+    }
+}*/
 
 struct Operation parse(char *line, size_t length) {
     struct Operation ret = {OP_ERROR, NULL};
@@ -364,7 +399,7 @@ struct Operation parse(char *line, size_t length) {
     if (validUnsignedNumeral(line, op_name_length)) {
         ret.arg = line;
         ret.op = OP_NEW_ROUTE_THROUGH;
-    } else if (strncmp(line, "newRoute", op_name_length)) {
+    } else if (strncmp(line, "newRoute", op_name_length) == 0) {
         ret.op = OP_NEW_ROUTE;
     } else if (strncmp(line, "addRoad", op_name_length) == 0) {
         ret.op = OP_ADD_ROAD;
