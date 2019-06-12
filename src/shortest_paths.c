@@ -5,6 +5,7 @@
 #include "shortest_paths.h"
 #include "utils.h"
 
+
 #define INFINITY UINT64_MAX
 
 /** @brief Iteruje po sąsiadach.
@@ -44,6 +45,10 @@ void freeStructures(uint64_t **dist, List **queue, bool **is_in_queue,
 static Status allocateStructures(int initial_vertex, size_t cities_no,
                                  uint64_t **dist, List **queue,
                                  bool **is_in_queue, int **time) {
+    *dist = NULL;
+    *queue = NULL;
+    *is_in_queue = NULL;
+    *time = NULL;
     *dist = malloc(cities_no * sizeof(uint64_t));
     CHECK_RET(*dist);
     for (size_t i = 0; i < cities_no; ++i) {
