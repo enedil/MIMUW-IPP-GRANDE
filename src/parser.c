@@ -283,14 +283,14 @@ static bool vNewRoute(char* arg) {
         return false;
     }
     char* firstsemicolon = strchr(arg, ';');
-    *firstsemicolon = 0;
     char* secondsemicolon = strchr(firstsemicolon + 1, ';');
+    *secondsemicolon = 0;
     if (!possiblyValidRoad(firstsemicolon + 1, secondsemicolon + 1)) {
         return false;
     }
     unsigned rid;
     Status s = extractRouteId(arg, &rid);
-    *firstsemicolon = ';';
+    *secondsemicolon = ';';
     return s;
 }
 
@@ -304,7 +304,7 @@ static bool vExtendRoute(char* arg) {
         return false;
     }
     char c[strlen(arg)+1];
-    return extractCityName(strchr(arg, ';'), c);
+    return extractCityName(strchr(arg, ';') + 1, c);
 }
 
 static bool vRemoveRoad(char* arg) {
@@ -395,25 +395,27 @@ struct Operation parse(char *line, size_t length) {
         return ret;
     }
     size_t op_name_length = first_semicolon - line;
+    *first_semicolon = 0;
     ret.arg = first_semicolon + 1;
     if (validUnsignedNumeral(line, op_name_length)) {
         ret.arg = line;
         ret.op = OP_NEW_ROUTE_THROUGH;
-    } else if (strncmp(line, "newRoute", op_name_length) == 0) {
+    } else if (strcmp(line, "newRoute") == 0) {
         ret.op = OP_NEW_ROUTE;
-    } else if (strncmp(line, "addRoad", op_name_length) == 0) {
+    } else if (strcmp(line, "addRoad") == 0) {
         ret.op = OP_ADD_ROAD;
-    } else if (strncmp(line, "repairRoad", op_name_length) == 0) {
+    } else if (strcmp(line, "repairRoad") == 0) {
         ret.op = OP_REPAIR_ROAD;
-    } else if (strncmp(line, "getRouteDescription", op_name_length) == 0) {
+    } else if (strcmp(line, "getRouteDescription") == 0) {
         ret.op = OP_ROUTE_DESCRIPTION;
-    } else if (strncmp(line, "extendRoute", op_name_length) == 0) {
+    } else if (strcmp(line, "extendRoute") == 0) {
         ret.op = OP_EXTEND_ROUTE;
-    } else if (strncmp(line, "removeRoad", op_name_length) == 0) {
+    } else if (strcmp(line, "removeRoad") == 0) {
         ret.op = OP_REMOVE_ROAD;
-    } else if (strncmp(line, "removeRoute", op_name_length) == 0) {
+    } else if (strcmp(line, "removeRoute") == 0) {
         ret.op = OP_REMOVE_ROUTE;
     }
+    *first_semicolon = ';';
     validateArgs(&ret);
     return ret;
 }

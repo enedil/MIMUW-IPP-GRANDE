@@ -42,6 +42,8 @@ set(SOURCE_FILES
     src/parser.h
     src/map_text_interface.c
     src/map_text_interface.h
+    #src/malloc_test.c
+    #src/malloc_test.h
     )
 
 # Wskazujemy plik wykonywalny.

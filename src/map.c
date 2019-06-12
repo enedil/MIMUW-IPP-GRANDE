@@ -98,11 +98,11 @@ Map *newMap(void) {
     return map;
 
 DELETE_EDGES_TO_LIST_OF_ROUTES:
-    vectorDelete(&map->int_to_city);
+    //vectorDelete(&map->int_to_city);
 DELETE_INT_TO_CITY:
-    vectorDelete(&map->neighbours);
+    //vectorDelete(&map->neighbours);
 DELETE_CITY_TO_INT:
-    deleteDictionary(&map->city_to_int);
+    //deleteDictionary(&map->city_to_int);
 DELETE_ROUTES:
     deleteRoutes(map);
     deleteMap(map);
@@ -111,13 +111,13 @@ DELETE_ROUTES:
 
 void deleteMap(Map *map) {
     deleteRoutes(map);
-    // deleteDictionary(&map->city_to_int);
+    deleteDictionary(&map->city_to_int);
     free(map->city_to_int.array);
     deleteAdjacencyDictionaries(map);
     vectorDeleteFreeContent(&map->neighbours);
     // deleteDictionaryOfLists(&map->routesThrough);
     deleteDictionary(&map->routesThrough);
-    vectorDeleteFreeContent(&map->int_to_city);
+    vectorDelete(&map->int_to_city);
     free(map);
 }
 
@@ -161,7 +161,10 @@ Status addCity(Map *map, const char *city) {
     strcpy(c, city);
 
     void *city_id = encodeCityId(map->city_to_int.size);
-    CHECK_RET(insertDictionary(&map->city_to_int, (void *)c, city_id));
+    if (!insertDictionary(&map->city_to_int, (void *)c, city_id)) {
+        free(c);
+        return false;
+    }
 
     Dictionary *d = newDictionary(hashInt, equalInt, empty, free_);
     if (d == NULL) {
@@ -182,7 +185,7 @@ DELETE_DICT:
     free(d);
 DELETE_FROM_DICTIONARY:
     deleteFromDictionary(&map->city_to_int, (void *)c);
-    free(c);
+    //free(c);
     return false;
 }
 
@@ -219,7 +222,7 @@ bool addRoad(Map *map, const char *city1, const char *city2, unsigned length,
     Road *r1 = calloc(1, sizeof(Road));
     Road *r2 = calloc(1, sizeof(Road));
     if (r1 == NULL || r2 == NULL) {
-        goto FREE_R;
+        goto FREE_L;
     }
     *r1 = (const Road){
         .builtYear = builtYear, .length = length, .start = id1, .end = id2};
@@ -230,7 +233,9 @@ bool addRoad(Map *map, const char *city1, const char *city2, unsigned length,
     void *edge = encodeEdgeAsPtr(id1, id2);
 
     l = newList();
-    CHECK_RET(l);
+    if (!l) {
+        goto FREE_L;
+    }
     if (insertDictionary(&map->routesThrough, edge, l) == false) {
         goto FREE_L;
     }
@@ -242,11 +247,16 @@ bool addRoad(Map *map, const char *city1, const char *city2, unsigned length,
     }
     return true;
 
+
 FREE_R:
+    deleteFromDictionary(&map->routesThrough, edge);
+    l = NULL;
+FREE_L:
+    deleteList(l);
+    free(l);
     free(r1);
     free(r2);
-FREE_L:
-    free(l);
+
     return false;
 }
 
@@ -734,21 +744,13 @@ bool removeRoad(Map *map, const char *city1, const char *city2) {
         assert(b == id2 || b == id1);
         deleteListNode(r, r->begin->next);
         deleteListNode(r, r->end->prev);
-        Node *anode = listFind(&map->routes[routeId].cities, id1);
-        if (anode == NULL) {
-            abort();
-        }
-        if (anode->next->value == b) {
-            insertListAfterElement(&map->routes[routeId].cities, r, a);
-        } else if (anode->prev->value == b) {
-            listReverse(r);
-            insertListAfterElement(&map->routes[routeId].cities, r, b);
-        } else {
-            abort();
-        }
         if (listPos(&map->routes[routeId].cities, a) <=
             listPos(&map->routes[routeId].cities, b)) {
+
+            insertListAfterElement(&map->routes[routeId].cities, r, a);
         } else {
+            listReverse(r);
+            insertListAfterElement(&map->routes[routeId].cities, r, b);
         }
         index++;
     }

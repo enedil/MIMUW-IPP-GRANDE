@@ -174,8 +174,8 @@ Status execNewRoute(Map *map, char *arg) {
     extractRouteId(arg, &rid);
     char* city1 = strchr(arg, ';') + 1;
     char* city2 = strchr(city1, ';') + 1;
-    *city1 = 0;
-    *city2 = 0;
+    //*city1 = 0;
+    *(city2-1) = 0;
     return newRoute(map, rid, city1, city2);
 }
 
