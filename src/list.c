@@ -28,10 +28,10 @@ Status listInsertAfter(List *list, Node *node, int elem) {
         return false;
     }
     Node *new = calloc(1, sizeof(Node));
-    new->value = elem;
     if (new == NULL) {
         return false;
     }
+    new->value = elem;
 
     if (node == list->end) {
         Node *before_end = list->end->prev;
