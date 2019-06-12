@@ -47,11 +47,11 @@ Status vectorAppend(Vector *vector, void *element) {
         vector->size++;
         return true;
     }
-    vector->capacity *= 2;
-    void *n = realloc(vector->arr, vector->capacity * sizeof(void *));
+    void *n = realloc(vector->arr, 2*vector->capacity * sizeof(void *));
     if (n == NULL) {
         return false;
     }
+    vector->capacity *= 2;
     vector->arr = n;
     return vectorAppend(vector, element);
 }
