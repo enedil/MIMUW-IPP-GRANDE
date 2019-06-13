@@ -589,6 +589,15 @@ static Status extendPathFromPrev(List *route, int *prev, int start, int end) {
     return true;
 }
 
+/** @brief repairRoute naprawia drogę krajową nr. @p routeId po usunięciu drogi.
+ * Droga usuwana łączy @p id1 oraz @p id2.
+ * @param[in,out] map       - mapa, którą modyfikujemy
+ * @param[in] routeId       - numer drogi krajowej, którą naprawiamy
+ * @param[in] id1           - początek usuwanej drogi
+ * @param[in] id2           - koniec usuwanej drogi
+ * @return lista wierzchołków, które należy wstawić pomiędzy @p id1 i @p id2 na strukturze
+ * reprezentującej drogę krajową.
+ */
 static List *repairRoute(Map *map, unsigned routeId, int id1, int id2) {
     const uint64_t infinity = UINT64_MAX;
     List *cities = &map->routes[routeId].cities;
@@ -764,18 +773,6 @@ FREE:
     vectorDeleteFreeListContent(new_routes, !ret);
     free(new_routes);
     return ret;
-}
-
-static void removeFromList(List* l, int v) {
-    for (Node* n = l->begin->next; n != l->end; n = n->next) {
-        if (v == n->value) {
-            Node* curr = n;
-            n->prev->next = n->next;
-            curr->next->prev = curr->prev;
-            free(curr);
-            return;
-        }
-    }
 }
 
 bool removeRoute(Map* map, unsigned routeId) {

@@ -124,4 +124,9 @@ Node *listFind(List *l, int el);
  */
 bool isEmptyList(List *l);
 
+/** @brief removeFromList usuwa z listy @p l pierwsze wystąpienie elementu @p v
+ * @param[in,out] l            - lista, którą modyfikujemy
+ * @param[in] v                - element, który usuwamy z listy
+ */
+void removeFromList(List* l, int v);
 #endif /* __LIST_H__ */
