@@ -138,18 +138,6 @@ void listReverse(List *l) {
     }
 }
 
-Node *listFind(List *l, int el) {
-    if (l == NULL) {
-        return NULL;
-    }
-    for (Node *n = l->begin->next; n != l->end; n = n->next) {
-        if (n->value == el) {
-            return n;
-        }
-    }
-    return NULL;
-}
-
 bool isEmptyList(List *l) {
     if (!l->begin) {
         return true;
@@ -157,7 +145,7 @@ bool isEmptyList(List *l) {
     return l->begin->next == l->end;
 }
 
-static void removeFromList(List* l, int v) {
+void removeFromList(List* l, int v) {
     for (Node* n = l->begin->next; n != l->end; n = n->next) {
         if (v == n->value) {
             Node* curr = n;

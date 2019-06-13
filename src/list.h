@@ -110,14 +110,6 @@ ssize_t listPos(List *l, int el);
  */
 void listReverse(List *l);
 
-/** @brief Znajduje pierwszy węzeł o wartości @p el w liście @p l.
- * @param[in] l                - lista, którą przeszukujemy
- * @param[in] el               - szukany element
- * @return NULL jeśli l == NULL lub element o wartości @p el nie istnieje na
- * liście.
- */
-Node *listFind(List *l, int el);
-
 /** @brief Sprawdza, czy lista jest pusta.
  * @param[in] l                - lista do sprawdzenia
  * @return @p true jeśli lista jest pusta, @p false gdy nie jest.

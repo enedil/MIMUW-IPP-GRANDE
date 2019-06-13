@@ -1,6 +1,3 @@
-/** @file
- * Implementacja modułu obsługi mapy.
- */
 #include <assert.h>
 #include <inttypes.h>
 #include <stdio.h>
