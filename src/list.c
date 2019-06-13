@@ -132,7 +132,7 @@ ssize_t listPos(List *l, int el) {
 }
 
 void listReverse(List *l) {
-    for (Node *b = l->begin->next, *e = l->end->prev; b != e && b->next != e;
+    for (Node *b = l->begin->next, *e = l->end->prev; b != e && b->prev != e;
          b = b->next, e = e->prev) {
         swap(&b->value, &e->value);
     }
