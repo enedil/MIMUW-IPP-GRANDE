@@ -746,7 +746,6 @@ bool removeRoad(Map *map, const char *city1, const char *city2) {
         deleteListNode(r, r->end->prev);
         if (listPos(&map->routes[routeId].cities, a) <=
             listPos(&map->routes[routeId].cities, b)) {
-
             insertListAfterElement(&map->routes[routeId].cities, r, a);
         } else {
             listReverse(r);
