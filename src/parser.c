@@ -134,8 +134,8 @@ static bool vNewRouteThrough(char *arg) {
     if ((semicolon_count % 3 != 1) || semicolon_count <= 1) {
         return false;
     }
-    for (char* p = arg+1; *p != 0; ++p) {
-        if (*p == *(p-1) && *p == ';') {
+    for (char *p = arg + 1; *p != 0; ++p) {
+        if (*p == *(p - 1) && *p == ';') {
             return false;
         }
     }
@@ -278,12 +278,12 @@ static bool vRemoveRoute(char *arg) {
     return 0 < id && id < 1000;
 }
 
-static bool vNewRoute(char* arg) {
+static bool vNewRoute(char *arg) {
     if (countChar(arg, ';') != 2) {
         return false;
     }
-    char* firstsemicolon = strchr(arg, ';');
-    char* secondsemicolon = strchr(firstsemicolon + 1, ';');
+    char *firstsemicolon = strchr(arg, ';');
+    char *secondsemicolon = strchr(firstsemicolon + 1, ';');
     *secondsemicolon = 0;
     if (!possiblyValidRoad(firstsemicolon + 1, secondsemicolon + 1)) {
         return false;
@@ -294,7 +294,7 @@ static bool vNewRoute(char* arg) {
     return s;
 }
 
-static bool vExtendRoute(char* arg) {
+static bool vExtendRoute(char *arg) {
     if (countChar(arg, ';') != 1) {
         return false;
     }
@@ -303,15 +303,15 @@ static bool vExtendRoute(char* arg) {
     if (!s) {
         return false;
     }
-    char c[strlen(arg)+1];
+    char c[strlen(arg) + 1];
     return extractCityName(strchr(arg, ';') + 1, c);
 }
 
-static bool vRemoveRoad(char* arg) {
+static bool vRemoveRoad(char *arg) {
     if (countChar(arg, ';') != 1) {
         return false;
     }
-    char* semicolon = strchr(arg, ';');
+    char *semicolon = strchr(arg, ';');
     *semicolon = 0;
     bool ret = possiblyValidRoad(arg, semicolon + 1);
     *semicolon = ';';

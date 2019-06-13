@@ -9,7 +9,6 @@
 
 #include "status.h"
 
-
 /// Tak oznaczane są wierzchołki, które usuwamy ze słownika.
 #define DELETED ((void *)1)
 

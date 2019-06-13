@@ -172,27 +172,27 @@ Status execNewRouteThrough(Map *map, char *arg) {
 Status execNewRoute(Map *map, char *arg) {
     unsigned rid;
     extractRouteId(arg, &rid);
-    char* city1 = strchr(arg, ';') + 1;
-    char* city2 = strchr(city1, ';') + 1;
+    char *city1 = strchr(arg, ';') + 1;
+    char *city2 = strchr(city1, ';') + 1;
     //*city1 = 0;
-    *(city2-1) = 0;
+    *(city2 - 1) = 0;
     return newRoute(map, rid, city1, city2);
 }
 
-Status execExtendRoute(Map* map, char* arg) {
+Status execExtendRoute(Map *map, char *arg) {
     unsigned rid;
     extractRouteId(arg, &rid);
-    char* city = strchr(arg, ';') + 1;
+    char *city = strchr(arg, ';') + 1;
     return extendRoute(map, rid, city);
 }
 
-Status execRemoveRoute(Map* map, char* arg) {
+Status execRemoveRoute(Map *map, char *arg) {
     unsigned rid;
     extractRouteId(arg, &rid);
     return removeRoute(map, rid);
 }
 
-Status execRemoveRoad(Map* map, char* arg) {
+Status execRemoveRoad(Map *map, char *arg) {
     size_t len = strlen(arg);
     char city1[len];
     char city2[len];

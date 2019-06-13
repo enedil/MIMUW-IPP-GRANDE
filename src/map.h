@@ -183,6 +183,6 @@ Road getRoadFromName(Map *map, char *city1, char *city2);
  * @param[in] routeId       - numer drogi krajowej
  * @return
  */
-bool removeRoute(Map* map, unsigned routeId);
+bool removeRoute(Map *map, unsigned routeId);
 
 #endif /* __MAP_H__ */

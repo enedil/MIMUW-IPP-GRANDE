@@ -67,40 +67,34 @@ Map *newMap(void) {
     Dictionary *d =
         newDictionary(hashString, undereferencing_strcmp, free_, empty);
     if (d == NULL) {
-        goto DELETE_ROUTES;
+        goto DELETE;
     }
     map->city_to_int = *d;
     free(d);
 
     Vector *n = newVector();
     if (n == NULL) {
-        goto DELETE_CITY_TO_INT;
+        goto DELETE;
     }
     map->neighbours = *n;
     free(n);
 
     Vector *c = newVector();
     if (c == NULL) {
-        goto DELETE_INT_TO_CITY;
+        goto DELETE;
     }
     map->int_to_city = *c;
     free(c);
 
     Dictionary *edges = newDictionary(hashEdge, cmpEdges, empty, free_list);
     if (edges == NULL) {
-        goto DELETE_EDGES_TO_LIST_OF_ROUTES;
+        goto DELETE;
     }
     map->routesThrough = *edges;
     free(edges);
     return map;
 
-DELETE_EDGES_TO_LIST_OF_ROUTES:
-    //vectorDelete(&map->int_to_city);
-DELETE_INT_TO_CITY:
-    //vectorDelete(&map->neighbours);
-DELETE_CITY_TO_INT:
-    //deleteDictionary(&map->city_to_int);
-DELETE_ROUTES:
+DELETE:
     deleteRoutes(map);
     deleteMap(map);
     return NULL;
@@ -112,7 +106,6 @@ void deleteMap(Map *map) {
     free(map->city_to_int.array);
     deleteAdjacencyDictionaries(map);
     vectorDeleteFreeContent(&map->neighbours);
-    // deleteDictionaryOfLists(&map->routesThrough);
     deleteDictionary(&map->routesThrough);
     vectorDelete(&map->int_to_city);
     free(map);
@@ -182,7 +175,6 @@ DELETE_DICT:
     free(d);
 DELETE_FROM_DICTIONARY:
     deleteFromDictionary(&map->city_to_int, (void *)c);
-    //free(c);
     return false;
 }
 
@@ -243,7 +235,6 @@ bool addRoad(Map *map, const char *city1, const char *city2, unsigned length,
         goto FREE_R;
     }
     return true;
-
 
 FREE_R:
     deleteFromDictionary(&map->routesThrough, edge);
@@ -592,8 +583,8 @@ static Status extendPathFromPrev(List *route, int *prev, int start, int end) {
  * @param[in] routeId       - numer drogi krajowej, którą naprawiamy
  * @param[in] id1           - początek usuwanej drogi
  * @param[in] id2           - koniec usuwanej drogi
- * @return lista wierzchołków, które należy wstawić pomiędzy @p id1 i @p id2 na strukturze
- * reprezentującej drogę krajową.
+ * @return lista wierzchołków, które należy wstawić pomiędzy @p id1 i @p id2 na
+ * strukturze reprezentującej drogę krajową.
  */
 static List *repairRoute(Map *map, unsigned routeId, int id1, int id2) {
     const uint64_t infinity = UINT64_MAX;
@@ -772,7 +763,7 @@ FREE:
     return ret;
 }
 
-bool removeRoute(Map* map, unsigned routeId) {
+bool removeRoute(Map *map, unsigned routeId) {
     if (!map) {
         return false;
     }
@@ -783,13 +774,14 @@ bool removeRoute(Map* map, unsigned routeId) {
         return false;
     }
 
-    Node* n1 = map->routes[routeId].cities.begin->next;
-    Node* n2 = map->routes[routeId].cities.begin->next->next;
+    Node *n1 = map->routes[routeId].cities.begin->next;
+    Node *n2 = map->routes[routeId].cities.begin->next->next;
     if (n2 == map->routes[routeId].cities.end) {
         return false;
     }
     while (n2 != map->routes[routeId].cities.end) {
-        Entry e = getDictionary(&map->routesThrough, encodeEdgeAsPtr(n1->value, n2->value));
+        Entry e = getDictionary(&map->routesThrough,
+                                encodeEdgeAsPtr(n1->value, n2->value));
         if (NOT_FOUND(e)) {
             return false;
         }

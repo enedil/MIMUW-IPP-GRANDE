@@ -9,7 +9,7 @@ hash_t nHashString(void *str, size_t len) {
     const uint8_t *c = str;
     hash_t ret = 0;
     for (size_t i = 0; i < len; ++i) {
-        ret = ret*149 + c[i];
+        ret = ret * 149 + c[i];
     }
     return ret;
 

@@ -145,10 +145,10 @@ bool isEmptyList(List *l) {
     return l->begin->next == l->end;
 }
 
-void removeFromList(List* l, int v) {
-    for (Node* n = l->begin->next; n != l->end; n = n->next) {
+void removeFromList(List *l, int v) {
+    for (Node *n = l->begin->next; n != l->end; n = n->next) {
         if (v == n->value) {
-            Node* curr = n;
+            Node *curr = n;
             n->prev->next = n->next;
             curr->next->prev = curr->prev;
             free(curr);

@@ -120,5 +120,5 @@ bool isEmptyList(List *l);
  * @param[in,out] l            - lista, którą modyfikujemy
  * @param[in] v                - element, który usuwamy z listy
  */
-void removeFromList(List* l, int v);
+void removeFromList(List *l, int v);
 #endif /* __LIST_H__ */

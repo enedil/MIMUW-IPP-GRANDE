@@ -1,5 +1,5 @@
-#include <stdlib.h>
 #include "dictionary.h"
+#include <stdlib.h>
 
 #define LOAD_FACTOR 0.9
 #define DICTIONARY_INITIAL_SIZE 4
@@ -49,7 +49,7 @@ static Status rehashDictionary(Dictionary *dictionary, size_t new_size) {
     CHECK_RET(dictionary);
     Entry *p = calloc(new_size, sizeof(Entry));
     if (p == NULL) {
-        //deleteDictionary(dictionary);
+        // deleteDictionary(dictionary);
         return false;
     }
     Dictionary copy = *dictionary;
@@ -77,7 +77,7 @@ Status insertDictionary(Dictionary *dictionary, void *key, void *val) {
     CHECK_RET(key);
     CHECK_RET(val);
     if (dictionary->size > dictionary->array_size * LOAD_FACTOR ||
-            dictionary->size + 1 >= dictionary->array_size) {
+        dictionary->size + 1 >= dictionary->array_size) {
         CHECK_RET(rehashDictionary(dictionary, 2 * dictionary->array_size));
     }
     hash_t index = INDEX(key);

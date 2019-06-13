@@ -52,20 +52,20 @@ Status execNewRoute(Map *map, char *arg);
  * @param[in] arg       - string w formacie wejściowym
  * @return
  */
-Status execExtendRoute(Map* map, char* arg);
+Status execExtendRoute(Map *map, char *arg);
 
 /** Usuwa drogę krajową z mapy
  * @param[in,out] map   - mapa, z której drogę krajową usuwamy
  * @param[in] arg       - string w formacie wejściowym
  * @return
  */
-Status execRemoveRoute(Map* map, char* arg);
+Status execRemoveRoute(Map *map, char *arg);
 
 /** Usuwa drogę z mapy
  * @param[in,out] map   - mapa, z której drogę usuwamy
  * @param[in] arg       - string w formacie wejściowym
  * @return
  */
-Status execRemoveRoad(Map* map, char* arg);
+Status execRemoveRoad(Map *map, char *arg);
 
 #endif /* __MAP_TEXT_INTERFACE_H__ */

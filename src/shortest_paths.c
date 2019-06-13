@@ -2,9 +2,9 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "queue.h"
 #include "shortest_paths.h"
 #include "utils.h"
-#include "queue.h"
 
 #define INFINITY UINT64_MAX
 
@@ -33,7 +33,7 @@ static Road nextNeighbour(Map *map, int src, bool reset) {
     return *(Road *)(neighbours->array[x].val);
 }
 
-void freeStructures(uint64_t **dist, Queue* queue, bool **is_in_queue,
+void freeStructures(uint64_t **dist, Queue *queue, bool **is_in_queue,
                     int **time) {
     free(queue->array);
     free(*dist);
@@ -75,10 +75,10 @@ FREE_MEMORY:
     return false;
 }
 
-Status shortestPathsHelper(Map *map, int A, int B, uint64_t dist[], Queue *queue,
-                           bool is_in_queue[], int time[], bool visited[],
-                           int prev[], uint64_t *d, int *w, bool fixing,
-                           bool insert_begin) {
+Status shortestPathsHelper(Map *map, int A, int B, uint64_t dist[],
+                           Queue *queue, bool is_in_queue[], int time[],
+                           bool visited[], int prev[], uint64_t *d, int *w,
+                           bool fixing, bool insert_begin) {
     bool ret = false;
 
     while (!isEmptyQueue(queue)) {
