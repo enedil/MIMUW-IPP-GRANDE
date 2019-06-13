@@ -17,8 +17,8 @@ set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_C_FLAGS "-std=c11 -Wall -Wextra -Werror")
 # Domyślne opcje dla wariantów Release i Debug są sensowne.
 # Jeśli to konieczne, ustawiamy tu inne.
-# set(CMAKE_C_FLAGS_RELEASE "-O3 -DNDEBUG")
-set(CMAKE_C_FLAGS_DEBUG "-ggdb3")
+set(CMAKE_C_FLAGS_RELEASE "-O3 -DNDEBUG")
+set(CMAKE_C_FLAGS_DEBUG "-ggdb3 -pg")
 
 # Wskazujemy pliki źródłowe.
 
