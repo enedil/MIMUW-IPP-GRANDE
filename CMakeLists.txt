@@ -17,7 +17,7 @@ set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_C_FLAGS "-std=c11 -Wall -Wextra -Werror")
 # Domyślne opcje dla wariantów Release i Debug są sensowne.
 # Jeśli to konieczne, ustawiamy tu inne.
-set(CMAKE_C_FLAGS_RELEASE "-O3 -DNDEBUG -march=native -pg")
+#set(CMAKE_C_FLAGS_RELEASE "-O3 -DNDEBUG -march=native -pg")
 set(CMAKE_C_FLAGS_DEBUG "-ggdb3")
 
 # Wskazujemy pliki źródłowe.
@@ -42,6 +42,8 @@ set(SOURCE_FILES
     src/parser.h
     src/map_text_interface.c
     src/map_text_interface.h
+    src/queue.c
+    src/queue.h
     #src/malloc_test.c
     #src/malloc_test.h
     )

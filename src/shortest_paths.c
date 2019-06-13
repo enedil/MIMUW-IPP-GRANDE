@@ -4,7 +4,7 @@
 
 #include "shortest_paths.h"
 #include "utils.h"
-
+#include "queue.h"
 
 #define INFINITY UINT64_MAX
 
@@ -33,20 +33,18 @@ static Road nextNeighbour(Map *map, int src, bool reset) {
     return *(Road *)(neighbours->array[x].val);
 }
 
-void freeStructures(uint64_t **dist, List **queue, bool **is_in_queue,
+void freeStructures(uint64_t **dist, Queue* queue, bool **is_in_queue,
                     int **time) {
-    deleteList(*queue);
-    free(*queue);
+    free(queue->array);
     free(*dist);
     free(*is_in_queue);
     free(*time);
 }
 
 static Status allocateStructures(int initial_vertex, size_t cities_no,
-                                 uint64_t **dist, List **queue,
+                                 uint64_t **dist, Queue *queue,
                                  bool **is_in_queue, int **time) {
     *dist = NULL;
-    *queue = NULL;
     *is_in_queue = NULL;
     *time = NULL;
     *dist = malloc(cities_no * sizeof(uint64_t));
@@ -66,33 +64,31 @@ static Status allocateStructures(int initial_vertex, size_t cities_no,
     for (size_t i = 0; i < cities_no; ++i) {
         (*time)[i] = INT_MAX;
     }
-    *queue = newList();
-    if (*queue == NULL) {
+    *queue = newQueue(cities_no);
+    if (queue->array == NULL) {
         goto FREE_MEMORY;
     }
-    if (listInsertAfter(*queue, (*queue)->begin, initial_vertex) == false) {
-        goto FREE_MEMORY;
-    }
+    pushQueueBegin(queue, initial_vertex);
     return true;
 FREE_MEMORY:
     freeStructures(dist, queue, is_in_queue, time);
     return false;
 }
 
-Status shortestPathsHelper(Map *map, int A, int B, uint64_t dist[], List *queue,
+Status shortestPathsHelper(Map *map, int A, int B, uint64_t dist[], Queue *queue,
                            bool is_in_queue[], int time[], bool visited[],
                            int prev[], uint64_t *d, int *w, bool fixing,
                            bool insert_begin) {
     bool ret = false;
 
-    while (queue->begin->next != queue->end) {
+    while (!isEmptyQueue(queue)) {
         int x;
         if (insert_begin) {
-            x = queue->begin->next->value;
-            deleteListNode(queue, queue->begin->next);
+            x = beginQueue(queue);
+            popQueueBegin(queue);
         } else {
-            x = queue->end->prev->value;
-            deleteListNode(queue, queue->end->prev);
+            x = endQueue(queue);
+            popQueueEnd(queue);
         }
         if (visited[x] == true) {
             continue;
@@ -115,10 +111,7 @@ Status shortestPathsHelper(Map *map, int A, int B, uint64_t dist[], List *queue,
                     dist[road.end] = road.length + dist[x];
                     time[road.end] = min(time[x], road.builtYear);
                     if (is_in_queue[road.end] == false) {
-                        if (listInsertAfter(queue, queue->end, road.end) ==
-                            false) {
-                            goto FREE_MEMORY;
-                        }
+                        pushQueueEnd(queue, road.end);
                         is_in_queue[road.end] = true;
                     }
                 }
@@ -129,8 +122,7 @@ Status shortestPathsHelper(Map *map, int A, int B, uint64_t dist[], List *queue,
     *d = dist[B];
     *w = time[B];
 
-FREE_MEMORY:
-    freeStructures(&dist, &queue, &is_in_queue, &time);
+    freeStructures(&dist, queue, &is_in_queue, &time);
     return ret;
 }
 
@@ -138,20 +130,20 @@ Status shortestPaths(Map *map, int A, int B, bool visited[], int prev[],
                      uint64_t *d, int *w, bool fixing) {
     size_t cities_no = map->city_to_int.size;
     uint64_t *dist;
-    List *queue;
+    Queue queue;
     bool *is_in_queue;
     int *time;
     int prev_cp[cities_no];
     CHECK_RET(
         allocateStructures(A, cities_no, &dist, &queue, &is_in_queue, &time));
-    CHECK_RET(shortestPathsHelper(map, A, B, dist, queue, is_in_queue, time,
+    CHECK_RET(shortestPathsHelper(map, A, B, dist, &queue, is_in_queue, time,
                                   visited, prev, d, w, fixing, false));
     for (size_t i = 0; i < cities_no; ++i) {
         prev_cp[i] = prev[i];
     }
     CHECK_RET(
         allocateStructures(A, cities_no, &dist, &queue, &is_in_queue, &time));
-    CHECK_RET(shortestPathsHelper(map, A, B, dist, queue, is_in_queue, time,
+    CHECK_RET(shortestPathsHelper(map, A, B, dist, &queue, is_in_queue, time,
                                   visited, prev, d, w, fixing, true));
     int id1 = B, id2 = B;
     while (true) {
