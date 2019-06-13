@@ -49,7 +49,6 @@ static Status rehashDictionary(Dictionary *dictionary, size_t new_size) {
     CHECK_RET(dictionary);
     Entry *p = calloc(new_size, sizeof(Entry));
     if (p == NULL) {
-        // deleteDictionary(dictionary);
         return false;
     }
     Dictionary copy = *dictionary;

@@ -12,17 +12,6 @@ hash_t nHashString(void *str, size_t len) {
         ret = ret * 149 + c[i];
     }
     return ret;
-
-    size_t x = sizeof(hash_t) * (len / sizeof(hash_t));
-    for (size_t i = 0; i < x; i += sizeof(hash_t)) {
-        ret ^= *(const hash_t *)(c + i);
-    }
-    if (x < len) {
-        uint8_t rest[sizeof(hash_t)] = {0};
-        memcpy(rest, c, len - x);
-        ret ^= *(const hash_t *)rest;
-    }
-    return ret;
 }
 
 hash_t hashString(void *str) { return nHashString(str, strlen((char *)str)); }
@@ -102,7 +91,7 @@ int decodeCityId(void *p) {
     return x >> 32;
 }
 
-int min(int a, int b) {
+inline int min(int a, int b) {
     if (a < b) {
         return a;
     }
